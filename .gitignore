@@ -1,0 +1,32 @@
+# ---- Haskell (GHC/Cabal) ----
+dist
+dist-*
+cabal-dev
+*.hi
+*.o
+*.hie
+*.dyn_hi
+*.dyn_o
+*.eventlog
+*.prof
+*.hp
+*.aux
+*.dump-*
+.stack-work/
+.ghc.environment.*
+cabal.project.local
+dist-newstyle/
+
+# ---- Haskell Language Server ----
+.hls/
+
+# ---- macOS ----
+.DS_Store
+.AppleDouble
+.LSOverride
+._*
+
+# ---- IntelliJ / JetBrains ----
+.idea/
+*.iml
+out/
