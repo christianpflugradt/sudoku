@@ -13,3 +13,6 @@ clean:
 	cabal clean
 
 check: build test
+
+lint:
+	hlint src test

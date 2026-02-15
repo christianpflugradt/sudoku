@@ -60,7 +60,24 @@ chmod +x scripts/install-hooks.sh
 
 A small `Makefile` is provided as a convenience wrapper around common development tasks (such as building and running tests).
 
-It is intentionally lightweight and simply delegates to `cabal`.  
-You can use it for shorter commands, or call `cabal` directly if you prefer.
+It is intentionally lightweight and simply delegates to `cabal` (and `hlint`, see next section).  
 
-The Makefile does not introduce any additional tooling requirements.
+## Linting (HLint)
+
+This project uses **HLint** to keep the code idiomatic and clean.
+
+### Install
+
+Using GHCup:
+
+```sh
+ghcup install hlint
+```
+
+### Run locally
+
+```sh
+make lint
+```
+
+This runs HLint on both src/ and test/.

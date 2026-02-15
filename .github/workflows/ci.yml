@@ -8,6 +8,9 @@ jobs:
   build-and-test:
     runs-on: ubuntu-latest
 
+    env:
+      HLINT_VERSION: "3.10"
+
     steps:
       - name: Checkout
         uses: actions/checkout@v4
@@ -28,8 +31,19 @@ jobs:
           restore-keys: |
             ${{ runner.os }}-cabal-
 
+      - name: Install HLint
+        uses: haskell-actions/hlint-setup@v2
+        with:
+          version: ${{ env.HLINT_VERSION }}
+
+      - name: Lint
+        uses: haskell-actions/hlint-run@v2
+        with:
+          path: '["src/", "test"]'
+          fail-on: warning
+
       - name: Build
-        run: cabal build
+        run: make build
 
       - name: Test
-        run: cabal test
+        run: make test
