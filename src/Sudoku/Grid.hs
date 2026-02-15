@@ -83,7 +83,7 @@ boundsOf grid = ((0, 0), (upper, upper))
 
 cellAt :: Grid -> Coordinate -> Maybe Cell
 cellAt grid coord
-  | A.inRange(A.bounds (cells grid)) coord = Just ((cells grid) ! coord)
+  | A.inRange(A.bounds (cells grid)) coord = Just (cells grid ! coord)
   | otherwise                          = Nothing
 
 setCell :: Grid -> Coordinate -> Cell -> Grid

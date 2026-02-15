@@ -21,6 +21,7 @@ library
     hs-source-dirs: src
     exposed-modules:
         Sudoku.Grid
+        Sudoku.Units
     build-depends:
         base ^>=4.22.0.0,
         containers,
@@ -55,5 +56,6 @@ test-suite sudoku-tests
         LambdaCase,
         TupleSections
     other-modules:
-        Sudoku.GridSpec
+        Sudoku.GridSpec,
+        Sudoku.UnitsSpec,
         Sudoku.TestHelpers
