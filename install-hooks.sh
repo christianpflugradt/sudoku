@@ -2,11 +2,16 @@
 set -eu
 
 HOOK_DIR=".git/hooks"
-HOOK_FILE="$HOOK_DIR/commit-msg"
 
 mkdir -p "$HOOK_DIR"
 
-cat > "$HOOK_FILE" <<'EOF'
+########################################################################
+# commit-msg
+########################################################################
+
+COMMIT_MSG_HOOK="$HOOK_DIR/commit-msg"
+
+cat > "$COMMIT_MSG_HOOK" <<'EOF'
 #!/bin/sh
 set -eu
 
@@ -45,5 +50,23 @@ echo "$MSG" | grep -Eq "$PATTERN" || {
 exit 0
 EOF
 
-chmod +x "$HOOK_FILE"
-echo "✓ Installed commit-msg hook into $HOOK_FILE"
+chmod +x "$COMMIT_MSG_HOOK"
+echo "✓ Installed commit-msg hook into $COMMIT_MSG_HOOK"
+
+########################################################################
+# pre-push
+########################################################################
+
+PRE_PUSH_HOOK="$HOOK_DIR/pre-push"
+
+cat > "$PRE_PUSH_HOOK" <<'EOF'
+#!/bin/sh
+set -eu
+
+echo "→ Running pre-push checks (make test)..."
+make test
+echo "✓ Pre-push checks passed"
+EOF
+
+chmod +x "$PRE_PUSH_HOOK"
+echo "✓ Installed pre-push hook into $PRE_PUSH_HOOK"

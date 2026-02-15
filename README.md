@@ -40,12 +40,14 @@ Scopes are intentionally kept small and stable.
 
 Scopes are only used for domain-level changes. All other commits (build, CI, documentation, repository configuration, etc.) are intentionally left without a scope.
 
-## Git Hooks (Commit Message Validation)
+## Git Hooks (Commit Message Validation + Pre-Push Checks)
 
-This repository uses a simple local Git hook to validate commit messages against the
-**Conventional Commits** format.
+This repository uses simple local Git hooks to:
 
-The hook is optional, but recommended.
+- validate commit messages against the **Conventional Commits** format (`commit-msg`)
+- run tests before pushing (`pre-push`)
+
+The hooks are optional, but recommended.
 
 ### Install (once per clone)
 
