@@ -1,8 +1,22 @@
 module Main (main) where
 
-import HelloWorld (alwaysReturnTrue)
+import Sudoku.Grid
+  ( mkSymbols
+  , emptyGrid
+  )
 
 main :: IO ()
 main = do
   putStrLn "sudoku"
-  putStrLn ("alwaysReturnTrue = " ++ show alwaysReturnTrue)
+
+  case mkSymbols ['1'..'4'] of
+    Nothing ->
+      putStrLn "Failed to create symbols."
+
+    Just symbols ->
+      case emptyGrid symbols of
+        Nothing ->
+          putStrLn "Failed to create grid."
+
+        Just grid ->
+          print grid

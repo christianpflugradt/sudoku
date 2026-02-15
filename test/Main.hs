@@ -1,14 +1,12 @@
 module Main where
 
 import Test.Tasty (defaultMain, testGroup)
-import Test.Tasty.HUnit (testCase, assertBool)
 
-import HelloWorld (alwaysReturnTrue)
+import qualified Sudoku.GridSpec as GridSpec
 
 main :: IO ()
 main =
   defaultMain $
     testGroup "sudoku"
-      [ testCase "alwaysReturnTrue returns True" $
-          assertBool "expected True" alwaysReturnTrue
+      [ GridSpec.tests
       ]
