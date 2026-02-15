@@ -39,3 +39,16 @@ Scopes are intentionally kept small and stable.
 - `generator` — generator implementation
 
 Scopes are only used for domain-level changes. All other commits (build, CI, documentation, repository configuration, etc.) are intentionally left without a scope.
+
+## Git Hooks (Commit Message Validation)
+
+This repository uses a simple local Git hook to validate commit messages against the
+**Conventional Commits** format.
+
+The hook is optional, but recommended.
+
+### Install (once per clone)
+
+```bash
+chmod +x scripts/install-hooks.sh
+./scripts/install-hooks.sh
