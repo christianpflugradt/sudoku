@@ -63,8 +63,8 @@ cat > "$PRE_PUSH_HOOK" <<'EOF'
 #!/bin/sh
 set -eu
 
-echo "→ Running pre-push checks (make test)..."
-make test
+echo "→ Running pre-push checks (make check)..."
+make check
 echo "✓ Pre-push checks passed"
 EOF
 
