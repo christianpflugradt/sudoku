@@ -51,6 +51,16 @@ The hooks are optional, but recommended.
 
 ### Install (once per clone)
 
-```bash
+```sh
 chmod +x scripts/install-hooks.sh
 ./scripts/install-hooks.sh
+```
+
+## Makefile
+
+A small `Makefile` is provided as a convenience wrapper around common development tasks (such as building and running tests).
+
+It is intentionally lightweight and simply delegates to `cabal`.  
+You can use it for shorter commands, or call `cabal` directly if you prefer.
+
+The Makefile does not introduce any additional tooling requirements.
