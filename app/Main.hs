@@ -1,22 +1,46 @@
 module Main (main) where
 
-import Sudoku.Grid
-  ( mkSymbols
-  , emptyGrid
-  )
+import Control.Exception (IOException)
+
+import Sudoku.Grid (Grid)
+import Sudoku.IO.File (readFileSafe)
+import Sudoku.PuzzleParser (ParseError, parsePuzzle)
+import Sudoku.PuzzleBuilder (buildPuzzle)
+import Sudoku.Placements (PlacementError)
+
+----------------------------------------------------------------------
+-- * Configuration
+----------------------------------------------------------------------
+
+examplePuzzlePath :: FilePath
+examplePuzzlePath = "sudokus/sudoku-easy-4x4-header.txt"
+
+data AppError
+  = FileError IOException
+  | ParseError ParseError
+  | BuildError PlacementError
+  deriving (Show)
+
+----------------------------------------------------------------------
+-- * Main
+----------------------------------------------------------------------
 
 main :: IO ()
 main = do
   putStrLn "sudoku"
 
-  case mkSymbols ['1'..'4'] of
-    Nothing ->
-      putStrLn "Failed to create symbols."
+  result <- run examplePuzzlePath
+  case result of
+    Left err  -> putStrLn ("Error: " ++ show err)
+    Right grid -> print grid
 
-    Just symbols ->
-      case emptyGrid symbols of
-        Nothing ->
-          putStrLn "Failed to create grid."
+run :: FilePath -> IO (Either AppError Grid)
+run path = do
+  fileResult <- readFileSafe path
+  pure $ do
+    content <- first FileError fileResult
+    (symbols, placements) <- first ParseError (parsePuzzle Nothing content)
+    first BuildError (buildPuzzle symbols placements)
 
-        Just grid ->
-          print grid
+first :: (e -> e') -> Either e a -> Either e' a
+first f = either (Left . f) Right

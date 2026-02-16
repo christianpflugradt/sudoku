@@ -21,6 +21,10 @@ library
     hs-source-dirs: src
     exposed-modules:
         Sudoku.Grid
+        Sudoku.IO.File
+        Sudoku.Placements
+        Sudoku.PuzzleBuilder
+        Sudoku.PuzzleParser
         Sudoku.Units
     build-depends:
         base ^>=4.22.0.0,
