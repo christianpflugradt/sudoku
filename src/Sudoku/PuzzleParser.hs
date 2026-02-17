@@ -3,10 +3,10 @@ module Sudoku.PuzzleParser
   , parsePuzzle
   ) where
 
-import Sudoku.Grid
+import Sudoku.Symbols
   ( mkSymbol
-  , Symbols
   , mkSymbols
+  , Symbols
   )
 
 import Sudoku.Placements

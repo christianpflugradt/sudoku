@@ -11,15 +11,17 @@ import qualified Data.Set as S
 import Data.Maybe (mapMaybe)
 
 import Sudoku.Grid
-  ( mkSymbols
-  , mkSymbol
-  , emptyGrid
+  ( emptyGrid
   , Cell(..)
   , sideLength
   , boundsOf
   , cellAt
   , setCell
   , allCoordinates
+  )
+
+import Sudoku.Symbols
+  ( mkSymbol
   )
 
 import Sudoku.TestHelpers
@@ -35,18 +37,7 @@ import Sudoku.TestHelpers
 tests :: TestTree
 tests =
   testGroup "Grid"
-    [ testGroup "mkSymbols"
-        [ testMkSymbolsEmpty
-        , testMkSymbolsUnique4
-        , testMkSymbolsSingle
-        , testMkSymbolsDuplicateAdjacent
-        , testMkSymbolsDuplicateNonAdjacent
-        ]
-    , testGroup "mkSymbol"
-        [ testMkSymbolAllowed
-        , testMkSymbolDisallowed
-        ]
-    , testGroup "emptyGrid"
+    [ testGroup "emptyGrid"
         [ testEmptyGridBounds4x4
         , testEmptyGridCandidates4x4
         , testEmptyGridBounds9x9
@@ -67,110 +58,6 @@ tests =
         [ testSetCellUpdatesOnlyTarget
         ]
     ]
-
-----------------------------------------------------------------------
--- mkSymbols
-----------------------------------------------------------------------
-
-testMkSymbolsEmpty :: TestTree
-testMkSymbolsEmpty =
-  testCase "empty list -> Nothing" $ do
-    -- given
-    let input = []
-
-    -- when
-    let actual = mkSymbols input
-
-    -- then
-    assertEqual "mkSymbols" Nothing actual
-
-testMkSymbolsUnique4 :: TestTree
-testMkSymbolsUnique4 =
-  testCase "unique list -> Just" $ do
-    -- given
-    let input = ['1'..'4']
-
-    -- when
-    let actual = mkSymbols input
-
-    -- then
-    case actual of
-      Just _  -> pure ()
-      Nothing -> assertFailure "expected Just value"
-
-testMkSymbolsSingle :: TestTree
-testMkSymbolsSingle =
-  testCase "single symbol -> Just" $ do
-    -- given
-    let input = ['1']
-
-    -- when
-    let actual = mkSymbols input
-
-    -- then
-    case actual of
-      Just _  -> pure ()
-      Nothing -> assertFailure "expected Just value"
-
-testMkSymbolsDuplicateAdjacent :: TestTree
-testMkSymbolsDuplicateAdjacent =
-  testCase "adjacent duplicate -> Nothing" $ do
-    -- given
-    let input = ['1','1','2','3']
-
-    -- when
-    let actual = mkSymbols input
-
-    -- then
-    assertEqual "mkSymbols" Nothing actual
-
-testMkSymbolsDuplicateNonAdjacent :: TestTree
-testMkSymbolsDuplicateNonAdjacent =
-  testCase "non-adjacent duplicate -> Nothing" $ do
-    -- given
-    let input = ['1','2','3','1']
-
-    -- when
-    let actual = mkSymbols input
-
-    -- then
-    assertEqual "mkSymbols" Nothing actual
-
-----------------------------------------------------------------------
--- mkSymbol
-----------------------------------------------------------------------
-
-testMkSymbolAllowed :: TestTree
-testMkSymbolAllowed =
-  testCase "allowed char -> Just" $ do
-    -- given
-    let allowedChars = ['1'..'4']
-        input        = '2'
-
-    allowed <- requireSymbols "mkSymbols failed for ['1'..'4']" allowedChars
-
-    -- when
-    let actual = mkSymbol allowed input
-
-    -- then
-    case actual of
-      Just _  -> pure ()
-      Nothing -> assertFailure "expected Just value"
-
-testMkSymbolDisallowed :: TestTree
-testMkSymbolDisallowed =
-  testCase "disallowed char -> Nothing" $ do
-    -- given
-    let allowedChars = ['1'..'4']
-        input        = '9'
-
-    allowed <- requireSymbols "mkSymbols failed for ['1'..'4']" allowedChars
-
-    -- when
-    let actual = mkSymbol allowed input
-
-    -- then
-    assertEqual "mkSymbol" Nothing actual
 
 ----------------------------------------------------------------------
 -- emptyGrid

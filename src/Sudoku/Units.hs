@@ -7,13 +7,16 @@ module Sudoku.Units
     ) where
 
 import Sudoku.Grid
-  ( Symbol
-  , Cell(Fixed)
+  ( Cell(Fixed)
   , Coordinate
   , Grid
   , boundsOf
   , sideLength
   , cellAt
+  )
+
+import Sudoku.Symbols
+  ( Symbol
   )
 
 ----------------------------------------------------------------------

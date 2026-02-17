@@ -1,9 +1,5 @@
 module Sudoku.Grid
-    ( Symbols
-    , mkSymbols
-    , Symbol
-    , mkSymbol
-    , Candidates
+    ( Candidates
     , Cell(..)
     , Coordinate
     , Grid
@@ -18,16 +14,16 @@ module Sudoku.Grid
 import qualified Data.Set as S
 import Data.Array (Array, (!), (//))
 import qualified Data.Array as A
-import Data.Maybe (mapMaybe)
+
+import Sudoku.Symbols
+  ( Symbol
+  , Symbols
+  , symbolsList
+  )
 
 ----------------------------------------------------------------------
 -- * Public Types
 ----------------------------------------------------------------------
-
-newtype Symbols = Symbols [Char] deriving (Eq, Ord, Show)
-
-newtype Symbol = Symbol Char
-  deriving (Eq, Ord, Show)
 
 type Candidates = S.Set Symbol
 
@@ -45,28 +41,15 @@ data Grid = Grid
 -- * Public API
 ----------------------------------------------------------------------
 
-mkSymbols :: [Char] -> Maybe Symbols
-mkSymbols [] = Nothing
-mkSymbols xs
-  | unique    = Just (Symbols xs)
-  | otherwise = Nothing
-  where
-    unique = length xs == S.size (S.fromList xs)
-
-mkSymbol :: Symbols -> Char -> Maybe Symbol
-mkSymbol (Symbols xs) c
-    | c `elem` xs = Just (Symbol c)
-    | otherwise   = Nothing
-
 emptyGrid :: Symbols -> Maybe Grid
-emptyGrid symbols@(Symbols xs)
+emptyGrid symbols
   | perfectSquare = Just (Grid
       { allowed = symbols
       , cells = A.array ((0, 0), (upper, upper)) (map (, value) keys)
       })
   | otherwise     = Nothing
   where
-    n = length xs
+    n = length (symbolsList symbols)
     b = floor (sqrt (fromIntegral n :: Double))
     perfectSquare = b * b == n
     upper = n - 1
@@ -74,17 +57,17 @@ emptyGrid symbols@(Symbols xs)
     keys  = [ (x, y) | x <- [0..upper], y <- [0..upper] ]
 
 sideLength :: Grid -> Int
-sideLength grid = case allowed grid of Symbols xs -> length xs
+sideLength grid = length (symbolsList (allowed grid))
 
 boundsOf :: Grid -> (Coordinate, Coordinate)
 boundsOf grid = ((0, 0), (upper, upper))
   where
-    upper = case allowed grid of Symbols xs -> length xs - 1
+    upper = length (symbolsList (allowed grid)) - 1
 
 cellAt :: Grid -> Coordinate -> Maybe Cell
 cellAt grid coord
-  | A.inRange(A.bounds (cells grid)) coord = Just (cells grid ! coord)
-  | otherwise                          = Nothing
+  | A.inRange (A.bounds (cells grid)) coord = Just (cells grid ! coord)
+  | otherwise                              = Nothing
 
 setCell :: Grid -> Coordinate -> Cell -> Grid
 setCell grid coord cell = grid { cells = cells grid // [(coord, cell)] }
@@ -99,4 +82,4 @@ allCoordinates grid = [ (x, y) | x <- [0..upper], y <- [0..upper] ]
 ----------------------------------------------------------------------
 
 allCandidates :: Symbols -> Candidates
-allCandidates symbols@(Symbols xs) = S.fromList (mapMaybe (mkSymbol symbols) xs)
+allCandidates = S.fromList . symbolsList

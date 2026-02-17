@@ -3,7 +3,13 @@ module Sudoku.Placements
   , PlacementError(..)
   ) where
 
-import Sudoku.Grid (Coordinate, Symbol)
+import Sudoku.Grid
+  ( Coordinate
+  )
+
+import Sudoku.Symbols
+  ( Symbol
+  )
 
 ----------------------------------------------------------------------
 -- * Public API

@@ -7,12 +7,15 @@ module Sudoku.TestHelpers
 import Test.Tasty.HUnit (assertFailure)
 
 import Sudoku.Grid
-  ( mkSymbols
-  , Symbols
-  , mkSymbol
-  , Symbol
-  , emptyGrid
+  ( emptyGrid
   , Grid
+  )
+
+import Sudoku.Symbols
+  ( mkSymbol
+  , Symbol
+  , mkSymbols
+  , Symbols
   )
 
 requireSymbols :: String -> [Char] -> IO Symbols

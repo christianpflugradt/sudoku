@@ -7,9 +7,12 @@ import Sudoku.Grid
   , emptyGrid
   , setCell
   , Cell(..)
-  , Symbols
+  )
+
+import Sudoku.Symbols
+  ( mkSymbol
   , mkSymbols
-  , mkSymbol
+  , Symbols
   )
 
 import Sudoku.Placements

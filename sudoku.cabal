@@ -25,6 +25,7 @@ library
         Sudoku.Placements
         Sudoku.PuzzleBuilder
         Sudoku.PuzzleParser
+        Sudoku.Symbols
         Sudoku.Units
     build-depends:
         base ^>=4.22.0.0,
@@ -62,4 +63,5 @@ test-suite sudoku-tests
     other-modules:
         Sudoku.GridSpec,
         Sudoku.UnitsSpec,
+        Sudoku.SymbolsSpec,
         Sudoku.TestHelpers
