@@ -3,6 +3,7 @@ module Sudoku.Symbols
     , mkSymbols
     , Symbol
     , mkSymbol
+    , symbolChar
     , symbolsList
     ) where
 
@@ -36,3 +37,6 @@ mkSymbol (Symbols xs) c
 
 symbolsList :: Symbols -> [Symbol]
 symbolsList (Symbols xs) = map Symbol xs
+
+symbolChar :: Symbol -> Char
+symbolChar (Symbol c) = c

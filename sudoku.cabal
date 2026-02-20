@@ -64,4 +64,5 @@ test-suite sudoku-tests
         Sudoku.GridSpec,
         Sudoku.UnitsSpec,
         Sudoku.SymbolsSpec,
+        Sudoku.PuzzleParserSpec,
         Sudoku.TestHelpers
