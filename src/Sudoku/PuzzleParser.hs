@@ -29,10 +29,8 @@ import Sudoku.Grid
 ----------------------------------------------------------------------
 
 data ParseError
-  = UnexpectedContent
-  | InvalidHeader
+  = InvalidHeader
   | DuplicateHeader
-  | EmptyDeclaredSymbols
   | DuplicateDeclaredSymbols
   | AmbiguousSymbols
   | InvalidSymbols
@@ -70,7 +68,7 @@ type HeaderKey   = String
 type HeaderValue = String
 
 splitHeaderSection :: [String] -> ([String], [String])
-splitHeaderSection = span (\ln -> null ln || looksLikeHeaderLine ln)
+splitHeaderSection = span (\ln -> all isSpace ln || looksLikeHeaderLine ln)
 
 looksLikeHeaderLine :: String -> Bool
 looksLikeHeaderLine line =
@@ -91,7 +89,7 @@ parseHeaderLine line =
       | head key == '-'                -> Left InvalidHeader
       | not (all isHeaderKeyChar key) -> Left InvalidHeader
       | null value                    -> Left InvalidHeader
-      | otherwise                     -> Right (key, value)
+      | otherwise                     -> Right (map toLower key, value)
     _                                 -> Left InvalidHeader
 
 isHeaderKeyChar :: Char -> Bool
@@ -102,7 +100,7 @@ ensureNoDuplicateHeaders headers
   | length keys == S.size (S.fromList keys) = Right headers
   | otherwise                               = Left DuplicateHeader
   where
-    keys = [ map toLower k | (k, _) <- headers ]
+    keys = [ k | (k, _) <- headers ]
 
 resolveSymbols :: Maybe Symbols -> Maybe String -> Int -> String -> Either ParseError Symbols
 resolveSymbols argSymbols headerSymbolsValue sideLength payload =
@@ -180,6 +178,6 @@ payloadToPlacements symbols n payload =
     mkPlacement (_, '.') = Right Nothing
     mkPlacement (i, ch) =
       case mkSymbol symbols ch of
-        Nothing     -> Left UnexpectedContent
+        Nothing     -> Left MalformedGrid
         Just symbol ->
           Right (Just ((i `mod` n, i `div` n), symbol))
