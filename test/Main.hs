@@ -6,6 +6,7 @@ import qualified Sudoku.GridSpec as GridSpec
 import qualified Sudoku.PuzzleParserSpec as PuzzleParserSpec
 import qualified Sudoku.SymbolsSpec as SymbolsSpec
 import qualified Sudoku.UnitsSpec as UnitsSpec
+import qualified Sudoku.Integration.ValidPuzzlesSpec as ValidPuzzlesSpec
 
 main :: IO ()
 main =
@@ -15,4 +16,5 @@ main =
       , PuzzleParserSpec.tests
       , SymbolsSpec.tests
       , UnitsSpec.tests
+      , ValidPuzzlesSpec.testParseAllValidPuzzles
       ]

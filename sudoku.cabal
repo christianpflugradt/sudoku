@@ -53,6 +53,8 @@ test-suite sudoku-tests
     build-depends:
         base ^>=4.22.0.0,
         containers,
+        directory,
+        filepath,
         sudoku,
         tasty,
         tasty-hunit
@@ -65,4 +67,5 @@ test-suite sudoku-tests
         Sudoku.UnitsSpec,
         Sudoku.SymbolsSpec,
         Sudoku.PuzzleParserSpec,
+        Sudoku.Integration.ValidPuzzlesSpec,
         Sudoku.TestHelpers
