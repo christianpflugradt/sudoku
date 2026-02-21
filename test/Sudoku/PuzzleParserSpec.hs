@@ -36,8 +36,10 @@ tests =
         , testParsePuzzleHappyPath4x4Args
         , testParsePuzzleHappyPath4x4Inferred
         , testParsePuzzleHappyPath9x9
+        , testParsePuzzleHappyPath4x4AdditionalHeaders
+        , testParsePuzzleHappyPath4x4GridWhitespaces
         ]
-    , testGroup "parsePuzzleParseErrorInvalidHeader"
+    , testGroup "parsePuzzleParseError"
         [ testParsePuzzleParseErrorInvalidHeader
         , testParsePuzzleParseErrorDuplicateHeader
         , testParsePuzzleParseErrorDuplicateDeclaredSymbols
@@ -47,6 +49,8 @@ tests =
         , testParsePuzzleParseErrorSymbolCountMismatchArgs
         , testParsePuzzleParseErrorSymbolCountMismatchHeader
         , testParsePuzzleParseErrorSymbolCountMismatchInferred
+        , testParsePuzzleParseErrorMalformedGrid
+        , testParsePuzzleParseErrorUnsupportedGridShape
         ]
     ]
 
@@ -56,20 +60,12 @@ tests =
 
 testParsePuzzleHappyPath4x4Header :: TestTree
 testParsePuzzleHappyPath4x4Header =
-  testCase "parses 4x4 with symbols header" $ do
+  testCase "parses 4x4 with symbols header (key case-insensitive)" $ do
     -- given
-    let input = unlines
-          [ "symbols: 1234"
-          , "headers-are-alphanumeric-and-hyphens-are-allowed-also-they-are-CASE-SENSITIVE-and-can-be-very-long: just a comment"
-          , "a: a header must have at least one character and not start with a hyphen"
-          , "...4"
-          , "...."
-          , "2..3"
-          , "4.12"
-          ]
     expectedSymbols <- requireSymbols "mkSymbols failed for '1234'" "1234"
     let expectedCoordsAndChars =
-          [ ((3,0), '4')
+          [ ((0,0), '1')
+          , ((3,0), '4')
           , ((0,2), '2')
           , ((3,2), '3')
           , ((0,3), '4')
@@ -77,13 +73,28 @@ testParsePuzzleHappyPath4x4Header =
           , ((3,3), '2')
           ]
     expectedPlacements <- requirePlacements expectedSymbols expectedCoordsAndChars
+    let headerVariants =
+          [ "symbols: 1234"
+          , "Symbols: 1234"
+          , "SYMBOLS: 1234"
+          ]
 
-    -- when
-    (actualSymbols, actualPlacements) <- requireRight "parsePuzzle returned Left" (parsePuzzle Nothing input)
+    traverse_ (\symbolsHeader -> do
+      let input = unlines
+            [ symbolsHeader
+            , "1..4"
+            , "...."
+            , "2..3"
+            , "4.12"
+            ]
 
-    -- then
-    assertEqual "symbols" expectedSymbols actualSymbols
-    assertEqual "placements" expectedPlacements actualPlacements
+      -- when
+      (actualSymbols, actualPlacements) <- requireRight ("parsePuzzle returned Left for header: " ++ show symbolsHeader) (parsePuzzle Nothing input)
+
+      -- then
+      assertEqual ("symbols for header: " ++ show symbolsHeader) expectedSymbols actualSymbols
+      assertEqual ("placements for header: " ++ show symbolsHeader) expectedPlacements actualPlacements
+      ) headerVariants
 
 testParsePuzzleHappyPath4x4HeaderArgs :: TestTree
 testParsePuzzleHappyPath4x4HeaderArgs =
@@ -91,14 +102,15 @@ testParsePuzzleHappyPath4x4HeaderArgs =
     -- given
     let input = unlines
           [ "symbols: 1234"
-          , "...4"
+          , "1..4"
           , "...."
           , "2..3"
           , "4.12"
           ]
     expectedSymbols <- requireSymbols "mkSymbols failed for '1234'" "1234"
     let expectedCoordsAndChars =
-          [ ((3,0), '4')
+          [ ((0,0), '1')
+          , ((3,0), '4')
           , ((0,2), '2')
           , ((3,2), '3')
           , ((0,3), '4')
@@ -119,14 +131,75 @@ testParsePuzzleHappyPath4x4Args =
   testCase "parses 4x4 with no symbols header and symbols passed to function" $ do
     -- given
     let input = unlines
-          [ "...4"
+          [ "1..4"
           , "...."
           , "2..3"
           , "4.12"
           ]
     expectedSymbols <- requireSymbols "mkSymbols failed for '1234'" "1234"
     let expectedCoordsAndChars =
-          [ ((3,0), '4')
+          [ ((0,0), '1')
+          , ((3,0), '4')
+          , ((0,2), '2')
+          , ((3,2), '3')
+          , ((0,3), '4')
+          , ((2,3), '1')
+          , ((3,3), '2')
+          ]
+    expectedPlacements <- requirePlacements expectedSymbols expectedCoordsAndChars
+
+    -- when
+    (actualSymbols, actualPlacements) <- requireRight "parsePuzzle returned Left" (parsePuzzle (Just expectedSymbols) input)
+
+    -- then
+    assertEqual "symbols" expectedSymbols actualSymbols
+    assertEqual "placements" expectedPlacements actualPlacements
+
+testParsePuzzleHappyPath4x4AdditionalHeaders :: TestTree
+testParsePuzzleHappyPath4x4AdditionalHeaders =
+  testCase "parses 4x4 with extra headers + whitespace lines" $ do
+    -- given
+    let input = unlines
+          [ ""
+          , "headers-are-alphanumeric-and-hyphens-are-allowed-also-they-are-CASE-SENSITIVE-and-can-be-very-long: just a comment"
+          , "   "
+          , "a: a header must have at least one character and not start with a hyphen"
+          , "1..4"
+          , "...."
+          , "2..3"
+          , "4.12"
+          ]
+
+    expectedSymbols <- requireSymbols "mkSymbols failed for '1234'" "1234"
+    let expectedCoordsAndChars =
+          [ ((0,0), '1')
+          , ((3,0), '4')
+          , ((0,2), '2')
+          , ((3,2), '3')
+          , ((0,3), '4')
+          , ((2,3), '1')
+          , ((3,3), '2')
+          ]
+    expectedPlacements <- requirePlacements expectedSymbols expectedCoordsAndChars
+
+    -- when
+    (actualSymbols, actualPlacements) <-
+      requireRight "parsePuzzle returned Left"
+        (parsePuzzle (Just expectedSymbols) input)
+
+    -- then
+    assertEqual "symbols" expectedSymbols actualSymbols
+    assertEqual "placements" expectedPlacements actualPlacements
+
+testParsePuzzleHappyPath4x4GridWhitespaces :: TestTree
+testParsePuzzleHappyPath4x4GridWhitespaces =
+  testCase "parses 4x4 with additional whitespaces in grid" $ do
+    -- given
+    let input = "  1.\t.4 ..\r\n..2\x00A0 . .\r34.12\n\t"
+    expectedSymbols <- requireSymbols "mkSymbols failed for '1234'" "1234"
+    let expectedCoordsAndChars =
+          [ ((0,0), '1')
+          , ((3,0), '4')
           , ((0,2), '2')
           , ((3,2), '3')
           , ((0,3), '4')
@@ -147,14 +220,15 @@ testParsePuzzleHappyPath4x4Inferred =
   testCase "parses 4x4 with symbols inferred from input" $ do
     -- given
     let input = unlines
-          [ "...4"
+          [ "1..4"
           , "...."
           , "2..3"
           , "4.12"
           ]
     expectedSymbols <- requireSymbols "mkSymbols failed for '1234'" "1234"
     let expectedCoordsAndChars =
-          [ ((3,0), '4')
+          [ ((0,0), '1')
+          , ((3,0), '4')
           , ((0,2), '2')
           , ((3,2), '3')
           , ((0,3), '4')
@@ -228,7 +302,7 @@ testParsePuzzleParseErrorInvalidHeader =
     traverse_ (\header -> do
       let input = unlines
             [ header
-            , "...4"
+            , "1..4"
             , "...."
             , "2..3"
             , "4.12"
@@ -254,7 +328,7 @@ testParsePuzzleParseErrorDuplicateHeader =
       let input = unlines
             [ fst header
             , snd header
-            , "...4"
+            , "1..4"
             , "...."
             , "2..3"
             , "4.12"
@@ -273,7 +347,7 @@ testParsePuzzleParseErrorDuplicateDeclaredSymbols =
     -- given
     let input = unlines
           [ "symbols: 1124"
-          , "...4"
+          , "1..4"
           , "...."
           , "2..3"
           , "4.12"
@@ -291,7 +365,7 @@ testParsePuzzleParseErrorAmbiguousSymbols =
     -- given
     let input = unlines
           [ "symbols: 1234"
-          , "...4"
+          , "1..4"
           , "...."
           , "2..3"
           , "4.12"
@@ -308,7 +382,7 @@ testParsePuzzleParseErrorInvalidSymbolsArgs :: TestTree
 testParsePuzzleParseErrorInvalidSymbolsArgs =
   testCase "rejects invalid symbols in args" $ do
     let input = unlines
-          [ "...4"
+          [ "1..4"
           , "...."
           , "2..3"
           , "4.12"
@@ -342,7 +416,7 @@ testParsePuzzleParseErrorInvalidSymbolsHeader =
       -- given
       let input = unlines
             [ "symbols: " ++ header
-            , "...4"
+            , "1..4"
             , "...."
             , "2..3"
             , "4.12"
@@ -360,7 +434,7 @@ testParsePuzzleParseErrorSymbolCountMismatchArgs :: TestTree
 testParsePuzzleParseErrorSymbolCountMismatchArgs =
   testCase "rejects symbols in args not matching grid size" $ do
     let input = unlines
-          [ "...4"
+          [ "1..4"
           , "...."
           , "2..3"
           , "4.12"
@@ -394,7 +468,7 @@ testParsePuzzleParseErrorSymbolCountMismatchHeader =
       -- given
       let input = unlines
             [ "symbols: " ++ header
-            , "...4"
+            , "1..4"
             , "...."
             , "2..3"
             , "4.12"
@@ -411,21 +485,99 @@ testParsePuzzleParseErrorSymbolCountMismatchHeader =
 testParsePuzzleParseErrorSymbolCountMismatchInferred :: TestTree
 testParsePuzzleParseErrorSymbolCountMismatchInferred =
   testCase "rejects inferred symbols not matching grid size" $ do
-    -- given
-    let input = unlines
-          [ ".1.3"
-          , "32.."
-          , "..32"
-          , "2.1."
+    let inputs =
+          [ unlines
+              [ ".1.3"
+              , "32.."
+              , "..32"
+              , "2.1."
+              ]
+          , unlines
+              [ ".1.3"
+              , "5..."
+              , "..42"
+              , "2.1."
+              ]
           ]
 
-    -- when
-    actual <- requireLeft "error for too few symbols inferred" (parsePuzzle Nothing input)
+    traverse_ (\input -> do
+      -- when
+      actual <- requireLeft "expected SymbolCountMismatch (inferred symbols)"  (parsePuzzle Nothing input)
 
-    -- then
-    assertEqual "error for too few symbols inferred" SymbolCountMismatch actual
+      -- then
+      assertEqual "error should be SymbolCountMismatch" SymbolCountMismatch actual
+      ) inputs
 
-    -- TODO: add tests for grid size and unexpected content
+testParsePuzzleParseErrorMalformedGrid :: TestTree
+testParsePuzzleParseErrorMalformedGrid =
+  testCase "rejects malformed grids (non-square payload length)" $ do
+    let malformedInputs =
+          [ unlines
+              [ "comment: empty grid is considered Malformed"
+              ]
+          , unlines
+              [ "comment: 4x4 grid has 17 cells instead of 16"
+              , ".1..4"
+              , "...."
+              , "2..3"
+              , "4.12"
+              ]
+          , unlines
+              [ "comment: 9x9 grid has 80 cells instead of 81"
+              , "....65928"
+              , "1.5.2.76."
+              , "..28....."
+              , "53.489..."
+              , "64.7..83."
+              , "..7.1..49"
+              , "49...8157"
+              , ".18...3.."
+              , "....912."
+              ]
+          , unlines
+              [ "comment: 4x4 grid has invalid character ':' but correct payload size"
+              , "symbols: 1234"
+              , "1..4"
+              , "...."
+              , "2.:."
+              , "4.12"
+              ]
+          ]
+
+    traverse_ (\input -> do
+      actual <- requireLeft "expected MalformedGrid" (parsePuzzle Nothing input)
+      assertEqual "error should be MalformedGrid" MalformedGrid actual
+      ) malformedInputs
+
+testParsePuzzleParseErrorUnsupportedGridShape :: TestTree
+testParsePuzzleParseErrorUnsupportedGridShape =
+  testCase "rejects square grids with unsupported box shape (e.g. 6x6)" $ do
+    let unsupportedInputs =
+          [ unlines
+              [ "comment: 5x5 grid is no valid sudoku and thus unsupported"
+              , "symbols: 12345"
+              , "....."
+              , "....."
+              , "....."
+              , "....."
+              , "....."
+              ]
+          , unlines
+              [ "comment: 6x6 grid is valid sudoku but currently not supported (non-square boxes)"
+              , "symbols: 123456"
+              , "......"
+              , "......"
+              , "......"
+              , "......"
+              , "......"
+              , "......"
+              ]
+          ]
+
+    traverse_ (\input -> do
+      actual <- requireLeft "expected UnsupportedGridShape" (parsePuzzle Nothing input)
+      assertEqual "error should be UnsupportedGridShape" UnsupportedGridShape actual
+      ) unsupportedInputs
 
 ----------------------------------------------------------------------
 -- Helpers
