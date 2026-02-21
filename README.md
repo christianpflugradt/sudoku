@@ -37,30 +37,16 @@ maintainability over quick feature accumulation.
 ### Build
 
 ``` sh
-cabal build
+make build
 ```
 
 ### Run
-
-If a runnable executable is defined:
-
-``` sh
-cabal run
-```
-
-If using the Makefile wrapper:
 
 ``` sh
 make run
 ```
 
 ### Tests
-
-``` sh
-cabal test
-```
-
-or via Makefile:
 
 ``` sh
 make test
