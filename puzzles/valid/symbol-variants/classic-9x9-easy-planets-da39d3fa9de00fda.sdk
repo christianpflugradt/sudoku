@@ -1,0 +1,18 @@
+id: da39d3fa9de00fda
+variant: classic
+size: 9x9
+symbols: ☿♀♁♂♃♄♅♆♇
+difficulty: easy
+source: external-generator
+created: 2026-02-21
+comment: planets
+
+..☿.♂♆.♁♇
+♁.♆♀...☿.
+♀♇.☿...♆.
+♇..♆.♂.♃♁
+☿.♂.♅♃♄..
+♃.......♂
+♄..♅♃...♆
+♂....♀♃.♅
+♆....♁..☿

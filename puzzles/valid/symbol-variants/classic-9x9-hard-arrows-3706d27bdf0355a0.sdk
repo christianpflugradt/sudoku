@@ -1,0 +1,18 @@
+id: 3706d27bdf0355a0
+variant: classic
+size: 9x9
+symbols: ←↑→↓↔↕↖↗↘
+difficulty: hard
+source: external-generator
+created: 2026-02-21
+comment: arrows
+
+.......→.
+↗→↘.↑..←.
+..↑.↕↓..↖
+↖..←.↗...
+......↗..
+...↓.↔..→
+↘↔←......
+..↕.....↑
+......↓↖.
