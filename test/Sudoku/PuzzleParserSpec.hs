@@ -13,7 +13,7 @@ import Sudoku.PuzzleParser
   , parsePuzzle
   )
 
-import Sudoku.Placements (Placements)
+import Sudoku.Grid (Placements)
 import Sudoku.Symbols (Symbols)
 
 import Sudoku.TestHelpers

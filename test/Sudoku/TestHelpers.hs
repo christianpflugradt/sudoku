@@ -1,8 +1,8 @@
 module Sudoku.TestHelpers
   ( requireLeft
   , requireRight
-  , requireSymbols
   , requireSymbol
+  , requireSymbols
   , requireEmptyGrid
   ) where
 

@@ -9,19 +9,14 @@ import qualified Data.Set as S
 
 import Sudoku.Symbols
   ( Symbols
-  , Symbol
   , mkSymbol
   , mkSymbols
   , symbolChar
   , symbolsList
   )
 
-import Sudoku.Placements
-  ( Placements
-  )
-
 import Sudoku.Grid
-  ( Coordinate
+  ( Placements
   )
 
 ----------------------------------------------------------------------
@@ -51,7 +46,7 @@ parsePuzzle symbolsArg input = do
   let declaredSymbolsValue = lookup "symbols" headers
   sideLength <- validateGridAndGetSideLength gridPayload
 
-  symbols <- resolveSymbols symbolsArg declaredSymbolsValue sideLength gridPayload
+  symbols <- resolveSymbols symbolsArg declaredSymbolsValue gridPayload
   validateSymbolCountMatchesGrid symbols sideLength
 
   placements <- payloadToPlacements symbols sideLength gridPayload
@@ -102,8 +97,8 @@ ensureNoDuplicateHeaders headers
   where
     keys = [ k | (k, _) <- headers ]
 
-resolveSymbols :: Maybe Symbols -> Maybe String -> Int -> String -> Either ParseError Symbols
-resolveSymbols argSymbols headerSymbolsValue sideLength payload =
+resolveSymbols :: Maybe Symbols -> Maybe String -> String -> Either ParseError Symbols
+resolveSymbols argSymbols headerSymbolsValue payload =
   case (argSymbols, headerSymbolsValue) of
     (Just sArg, Nothing)        -> do
       validateSymbols sArg
@@ -120,7 +115,7 @@ resolveSymbols argSymbols headerSymbolsValue sideLength payload =
       parseDeclaredSymbols rawHeader
 
     (Nothing, Nothing)          ->
-      inferSymbolsFromPayload sideLength payload
+      inferSymbolsFromPayload payload
 
 parseDeclaredSymbols :: String -> Either ParseError Symbols
 parseDeclaredSymbols raw = do
@@ -146,8 +141,8 @@ validateSymbols s
       let c = symbolChar sym
       in isSpace c || c == '.' || c == ':'
 
-inferSymbolsFromPayload :: Int -> String -> Either ParseError Symbols
-inferSymbolsFromPayload sideLength payload =
+inferSymbolsFromPayload :: String -> Either ParseError Symbols
+inferSymbolsFromPayload payload =
   case mkSymbols syms of
     Nothing -> Left InvalidSymbols
     Just s  -> Right s

@@ -16,8 +16,10 @@ import Sudoku.Grid
   , sideLength
   , boundsOf
   , cellAt
-  , setCell
   , allCoordinates
+  , rowOf
+  , colOf
+  , boxOf
   )
 
 import Sudoku.Symbols
@@ -25,8 +27,7 @@ import Sudoku.Symbols
   )
 
 import Sudoku.TestHelpers
-  ( requireSymbol
-  , requireSymbols
+  ( requireSymbols
   , requireEmptyGrid
   )
 
@@ -54,8 +55,19 @@ tests =
         , testSideLength9x9
         , testSideLength16x16
         ]
-    , testGroup "setCell"
-        [ testSetCellUpdatesOnlyTarget
+    , testGroup "rowOf"
+        [ testRowOf4x4Middle
+        , testRowOf9x9Boundary
+        ]
+    , testGroup "colOf"
+        [ testColOf4x4Middle
+        , testColOf16x16Boundary
+        ]
+    , testGroup "boxOf"
+        [ testBoxOf4x4TopLeft
+        , testBoxOf4x4BottomRight
+        , testBoxOf9x9Center
+        , testBoxOf16x16NonTrivial
         ]
     ]
 
@@ -297,34 +309,223 @@ testSideLength16x16 =
     assertEqual "sideLength" expected actual
 
 ----------------------------------------------------------------------
--- setCell
+-- rowOf
 ----------------------------------------------------------------------
 
-testSetCellUpdatesOnlyTarget :: TestTree
-testSetCellUpdatesOnlyTarget =
-  testCase "setCell updates only the target coordinate" $ do
+testRowOf4x4Middle :: TestTree
+testRowOf4x4Middle =
+  testCase "rowOf 4x4 returns the correct row for (1,2)" $ do
     -- given
     let allowedChars = ['1'..'4']
-        coordinate  = (1,2)
+        coord = (1,2)
+        expected =
+          [ (0,2)
+          , (1,2)
+          , (2,2)
+          , (3,2)
+          ]
 
     allowed <- requireSymbols "mkSymbols failed for ['1'..'4']" allowedChars
     grid    <- requireEmptyGrid "emptyGrid returned Nothing for 4x4 symbols" allowed
-    symbol  <- requireSymbol "mkSymbol failed for '2'" allowed '2'
-
-    let cellToSet               = Fixed symbol
-        expectedUnchangedCoords = filter (/= coordinate) (allCoordinates grid)
 
     -- when
-    let actual = setCell grid coordinate cellToSet
+    let actual = rowOf grid coord
 
     -- then
-    assertEqual "cell updated" (Just cellToSet) (cellAt actual coordinate)
+    assertEqual "rowOf" expected actual
 
-    mapM_
-      (\coord ->
-         assertEqual
-           ("unchanged at " ++ show coord)
-           (cellAt grid coord)
-           (cellAt actual coord)
-      )
-      expectedUnchangedCoords
+testRowOf9x9Boundary :: TestTree
+testRowOf9x9Boundary =
+  testCase "rowOf 9x9 returns the correct row for (8,0)" $ do
+    -- given
+    let allowedChars = ['1'..'9']
+        coord = (8,0)
+        expected =
+          [ (0,0)
+          , (1,0)
+          , (2,0)
+          , (3,0)
+          , (4,0)
+          , (5,0)
+          , (6,0)
+          , (7,0)
+          , (8,0)
+          ]
+
+    allowed <- requireSymbols "mkSymbols failed for ['1'..'9']" allowedChars
+    grid    <- requireEmptyGrid "emptyGrid returned Nothing for 9x9 symbols" allowed
+
+    -- when
+    let actual = rowOf grid coord
+
+    -- then
+    assertEqual "rowOf" expected actual
+
+----------------------------------------------------------------------
+-- colOf
+----------------------------------------------------------------------
+
+testColOf4x4Middle :: TestTree
+testColOf4x4Middle =
+  testCase "colOf 4x4 returns the correct column for (1,2)" $ do
+    -- given
+    let allowedChars = ['1'..'4']
+        coord = (1,2)
+        expected =
+          [ (1,0)
+          , (1,1)
+          , (1,2)
+          , (1,3)
+          ]
+
+    allowed <- requireSymbols "mkSymbols failed for ['1'..'4']" allowedChars
+    grid    <- requireEmptyGrid "emptyGrid returned Nothing for 4x4 symbols" allowed
+
+    -- when
+    let actual = colOf grid coord
+
+    -- then
+    assertEqual "colOf" expected actual
+
+testColOf16x16Boundary :: TestTree
+testColOf16x16Boundary =
+  testCase "colOf 16x16 returns the correct column for (0,15)" $ do
+    -- given
+    let allowedChars = ['1'..'9'] ++ ['A'..'G']
+        coord = (0,15)
+        expected =
+          [ (0,0)
+          , (0,1)
+          , (0,2)
+          , (0,3)
+          , (0,4)
+          , (0,5)
+          , (0,6)
+          , (0,7)
+          , (0,8)
+          , (0,9)
+          , (0,10)
+          , (0,11)
+          , (0,12)
+          , (0,13)
+          , (0,14)
+          , (0,15)
+          ]
+
+    allowed <- requireSymbols "mkSymbols failed for 16x16 alphabet" allowedChars
+    grid    <- requireEmptyGrid "emptyGrid returned Nothing for 16x16 symbols" allowed
+
+    -- when
+    let actual = colOf grid coord
+
+    -- then
+    assertEqual "colOf" expected actual
+
+----------------------------------------------------------------------
+-- boxOf
+----------------------------------------------------------------------
+
+testBoxOf4x4TopLeft :: TestTree
+testBoxOf4x4TopLeft =
+  testCase "boxOf 4x4 returns the top-left 2x2 box for (1,0)" $ do
+    -- given
+    let allowedChars = ['1'..'4']
+        coord = (1,0)
+        expected =
+          [ (0,0)
+          , (0,1)
+          , (1,0)
+          , (1,1)
+          ]
+
+    allowed <- requireSymbols "mkSymbols failed for ['1'..'4']" allowedChars
+    grid    <- requireEmptyGrid "emptyGrid returned Nothing for 4x4 symbols" allowed
+
+    -- when
+    let actual = boxOf grid coord
+
+    -- then
+    assertEqual "boxOf" expected actual
+
+testBoxOf4x4BottomRight :: TestTree
+testBoxOf4x4BottomRight =
+  testCase "boxOf 4x4 returns the bottom-right 2x2 box for (3,3)" $ do
+    -- given
+    let allowedChars = ['1'..'4']
+        coord = (3,3)
+        expected =
+          [ (2,2)
+          , (2,3)
+          , (3,2)
+          , (3,3)
+          ]
+
+    allowed <- requireSymbols "mkSymbols failed for ['1'..'4']" allowedChars
+    grid    <- requireEmptyGrid "emptyGrid returned Nothing for 4x4 symbols" allowed
+
+    -- when
+    let actual = boxOf grid coord
+
+    -- then
+    assertEqual "boxOf" expected actual
+
+testBoxOf9x9Center :: TestTree
+testBoxOf9x9Center =
+  testCase "boxOf 9x9 returns the center 3x3 box for (4,4)" $ do
+    -- given
+    let allowedChars = ['1'..'9']
+        coord = (4,4)
+        expected =
+          [ (3,3)
+          , (3,4)
+          , (3,5)
+          , (4,3)
+          , (4,4)
+          , (4,5)
+          , (5,3)
+          , (5,4)
+          , (5,5)
+          ]
+
+    allowed <- requireSymbols "mkSymbols failed for ['1'..'9']" allowedChars
+    grid    <- requireEmptyGrid "emptyGrid returned Nothing for 9x9 symbols" allowed
+
+    -- when
+    let actual = boxOf grid coord
+
+    -- then
+    assertEqual "boxOf" expected actual
+
+testBoxOf16x16NonTrivial :: TestTree
+testBoxOf16x16NonTrivial =
+  testCase "boxOf 16x16 returns the correct 4x4 box for (6,10)" $ do
+    -- given
+    let allowedChars = ['1'..'9'] ++ ['A'..'G']
+        coord = (6,10)
+        expected =
+          [ (4,8)
+          , (4,9)
+          , (4,10)
+          , (4,11)
+          , (5,8)
+          , (5,9)
+          , (5,10)
+          , (5,11)
+          , (6,8)
+          , (6,9)
+          , (6,10)
+          , (6,11)
+          , (7,8)
+          , (7,9)
+          , (7,10)
+          , (7,11)
+          ]
+
+    allowed <- requireSymbols "mkSymbols failed for 16x16 alphabet" allowedChars
+    grid    <- requireEmptyGrid "emptyGrid returned Nothing for 16x16 symbols" allowed
+
+    -- when
+    let actual = boxOf grid coord
+
+    -- then
+    assertEqual "boxOf" expected actual

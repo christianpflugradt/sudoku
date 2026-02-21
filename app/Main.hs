@@ -2,18 +2,17 @@ module Main (main) where
 
 import Control.Exception (IOException)
 
-import Sudoku.Grid (Grid)
+import Sudoku.Grid (Grid, PlacementError)
 import Sudoku.IO.File (readFileSafe)
 import Sudoku.PuzzleParser (ParseError, parsePuzzle)
 import Sudoku.PuzzleBuilder (buildPuzzle)
-import Sudoku.Placements (PlacementError)
 
 ----------------------------------------------------------------------
 -- * Configuration
 ----------------------------------------------------------------------
 
 examplePuzzlePath :: FilePath
-examplePuzzlePath = "puzzles/valid/4x4/classic-4x4-easy-08a33f80f06ed9e5.sdk"
+examplePuzzlePath = "puzzles/valid/25x25/classic-25x25-easy-486b1792a9b027e05f2c539290e2548c.sdk"
 
 data AppError
   = FileError IOException

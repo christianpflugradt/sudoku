@@ -2,15 +2,22 @@ module Sudoku.Grid
     ( Candidates
     , Cell(..)
     , Coordinate
+    , Placements
+    , PlacementError
+    , Unit
     , Grid
     , emptyGrid
     , sideLength
     , boundsOf
+    , rowOf
+    , colOf
+    , boxOf
     , cellAt
     , setCell
     , allCoordinates
     ) where
 
+import Control.Monad (when, foldM)
 import qualified Data.Set as S
 import Data.Array (Array, (!), (//))
 import qualified Data.Array as A
@@ -31,6 +38,15 @@ data Cell = Fixed Symbol | Empty Candidates
   deriving (Eq, Show)
 
 type Coordinate = (Int, Int)
+type Placements = [(Coordinate, Symbol)]
+type Unit = [Coordinate]
+
+data PlacementError
+  = OutOfBounds
+  | AlreadySet
+  | DuplicateInUnit
+  | NoCandidates
+  deriving(Eq, Show)
 
 data Grid = Grid
   { allowed :: Symbols
@@ -64,18 +80,50 @@ boundsOf grid = ((0, 0), (upper, upper))
   where
     upper = length (symbolsList (allowed grid)) - 1
 
+allCoordinates :: Grid -> [Coordinate]
+allCoordinates grid = [ (x, y) | x <- [0..upper], y <- [0..upper] ]
+  where
+    upper = sideLength grid - 1
+
+rowOf :: Grid -> Coordinate -> Unit
+rowOf grid (_, coordY) = [(x, coordY) | x <- [0..upperX]]
+  where
+    ((_, _), (upperX, _)) = boundsOf grid
+
+colOf :: Grid -> Coordinate -> Unit
+colOf grid (coordX, _) = [(coordX, y) | y <- [0..upperY]]
+  where
+    ((_, _), (_, upperY)) = boundsOf grid
+
+boxOf :: Grid -> Coordinate -> Unit
+boxOf grid (x, y) = [(boxX, boxY) | boxX <- [fromX..toX], boxY <- [fromY..toY]]
+  where
+    n = sideLength grid
+    b = floor (sqrt (fromIntegral n :: Double))
+    fromX = (x `div` b) * b
+    fromY = (y `div` b) * b
+    toX = fromX + b - 1
+    toY = fromY + b - 1
+
 cellAt :: Grid -> Coordinate -> Maybe Cell
 cellAt grid coord
   | A.inRange (A.bounds (cells grid)) coord = Just (cells grid ! coord)
   | otherwise                              = Nothing
 
-setCell :: Grid -> Coordinate -> Cell -> Grid
-setCell grid coord cell = grid { cells = cells grid // [(coord, cell)] }
+setCell :: Grid -> Coordinate -> Symbol -> Either PlacementError Grid
+setCell grid coord symbol = do
+  case cellAt grid coord of
+    Nothing        -> Left OutOfBounds
+    Just (Fixed _) -> Left AlreadySet
+    Just (Empty _) -> Right ()
 
-allCoordinates :: Grid -> [Coordinate]
-allCoordinates grid = [ (x, y) | x <- [0..upper], y <- [0..upper] ]
-  where
-    upper = sideLength grid - 1
+  let peers = peersOf grid coord
+
+  when (any (\c -> cellAt grid c == Just (Fixed symbol)) peers) $
+    Left DuplicateInUnit
+
+  let updatedGrid = setCellValue grid coord (Fixed symbol)
+  foldM (removeCandidateFromPeer symbol) updatedGrid peers
 
 ----------------------------------------------------------------------
 -- * Internal Helpers
@@ -83,3 +131,23 @@ allCoordinates grid = [ (x, y) | x <- [0..upper], y <- [0..upper] ]
 
 allCandidates :: Symbols -> Candidates
 allCandidates = S.fromList . symbolsList
+
+unitFns :: [Grid -> Coordinate -> Unit]
+unitFns = [rowOf, colOf, boxOf]
+
+peersOf :: Grid -> Coordinate -> [Coordinate]
+peersOf grid coord = filter (/= coord) . S.toList . S.fromList . concat $ [ fn grid coord | fn <- unitFns ]
+
+removeCandidateFromPeer :: Symbol -> Grid -> Coordinate -> Either PlacementError Grid
+removeCandidateFromPeer sym grid coord =
+  case cellAt grid coord of
+    Nothing -> Left OutOfBounds
+    Just (Fixed _) -> Right grid
+    Just (Empty candidates) ->
+      let candidates' = S.delete sym candidates
+      in if S.null candidates'
+           then Left NoCandidates
+           else Right (setCellValue grid coord (Empty candidates'))
+
+setCellValue :: Grid -> Coordinate -> Cell -> Grid
+setCellValue grid coord cell = grid { cells = cells grid // [(coord, cell)] }

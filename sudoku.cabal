@@ -22,11 +22,9 @@ library
     exposed-modules:
         Sudoku.Grid
         Sudoku.IO.File
-        Sudoku.Placements
         Sudoku.PuzzleBuilder
         Sudoku.PuzzleParser
         Sudoku.Symbols
-        Sudoku.Units
     build-depends:
         base ^>=4.22.0.0,
         containers,
@@ -64,7 +62,6 @@ test-suite sudoku-tests
         TupleSections
     other-modules:
         Sudoku.GridSpec,
-        Sudoku.UnitsSpec,
         Sudoku.SymbolsSpec,
         Sudoku.PuzzleParserSpec,
         Sudoku.Integration.ValidPuzzlesSpec,
