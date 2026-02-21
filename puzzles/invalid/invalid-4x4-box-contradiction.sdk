@@ -1,0 +1,12 @@
+id: invalid-4x4-box-contradiction
+variant: classic
+size: 4x4
+symbols: 1234
+difficulty: n/a
+source: hand-crafted
+created: 2026-02-21
+
+1.23
+.14.
+.2..
+.31.

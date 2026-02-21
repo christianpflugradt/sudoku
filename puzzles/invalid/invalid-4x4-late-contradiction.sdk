@@ -1,0 +1,12 @@
+id: invalid-4x4-late-contradiction
+variant: classic
+size: 4x4
+symbols: 1234
+difficulty: n/a
+source: hand-crafted
+created: 2026-02-21
+
+..2.
+..3.
+1...
+2.4.
