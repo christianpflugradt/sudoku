@@ -13,7 +13,7 @@ import Sudoku.Placements (PlacementError)
 ----------------------------------------------------------------------
 
 examplePuzzlePath :: FilePath
-examplePuzzlePath = "sudokus/sudoku-easy-4x4-header.txt"
+examplePuzzlePath = "puzzles/valid/4x4/classic-4x4-easy-08a33f80f06ed9e5.sdk"
 
 data AppError
   = FileError IOException
