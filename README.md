@@ -113,7 +113,7 @@ A small `Makefile` is provided as a convenience wrapper around common
 development tasks (such as building and running tests).
 
 It is intentionally lightweight and simply delegates to `cabal` (and
-`hlint`, see next section).
+other tools, see next section).
 
 ## Linting (HLint)
 
@@ -124,7 +124,7 @@ This project uses HLint to keep the code idiomatic and clean.
 Using GHCup:
 
 ``` sh
-ghcup install hlint
+cabal install hlint
 ```
 
 ### Run locally
@@ -134,3 +134,25 @@ make lint
 ```
 
 This runs HLint on both `src/` and `test/`.
+
+## Code Formatting (Ormolu)
+
+This project uses Ormolu as a consistent, opinionated code formatter
+for all Haskell source files.
+
+Ormolu formats the entire file (including import ordering and layout),
+ensuring a uniform style across the codebase.
+
+### Install 
+
+Using GHCup:
+
+``` sh
+cabal install ormolu
+```
+
+### Format locally
+
+``` sh
+make format
+```

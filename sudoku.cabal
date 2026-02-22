@@ -1,4 +1,4 @@
-cabal-version:      3.16
+cabal-version:      3.0
 name:               sudoku
 version:            0.1.0.0
 license:            MIT

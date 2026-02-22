@@ -1,4 +1,7 @@
-.PHONY: build lint test run clean check
+.PHONY: format build lint test run clean check
+
+format:
+	find app src test -name "*.hs" -exec ormolu -i {} \;
 
 build:
 	cabal build
