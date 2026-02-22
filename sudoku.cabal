@@ -20,8 +20,10 @@ library
     import: warnings
     hs-source-dirs: src
     exposed-modules:
+        Sudoku.Geometry
         Sudoku.Grid
         Sudoku.IO.File
+        Sudoku.Placements
         Sudoku.PuzzleBuilder
         Sudoku.PuzzleParser
         Sudoku.Symbols
@@ -61,8 +63,9 @@ test-suite sudoku-tests
         LambdaCase,
         TupleSections
     other-modules:
+        Sudoku.GeometrySpec,
         Sudoku.GridSpec,
-        Sudoku.SymbolsSpec,
         Sudoku.PuzzleParserSpec,
+        Sudoku.SymbolsSpec,
         Sudoku.Integration.ValidPuzzlesSpec,
         Sudoku.TestHelpers

@@ -1,19 +1,21 @@
 module Sudoku.Symbols
-  ( Symbols,
-    mkSymbols,
-    Symbol,
+  ( Symbol,
+    Symbols,
     mkSymbol,
+    mkSymbols,
     symbolChar,
     symbolsList,
   )
 where
 
+----------------------------------------------------------------------
+-- Imports
+----------------------------------------------------------------------
+
 import qualified Data.Set as S
 
 ----------------------------------------------------------------------
-
--- * Public Types
-
+-- Public Types
 ----------------------------------------------------------------------
 
 newtype Symbols = Symbols [Char] deriving (Eq, Ord, Show)
@@ -22,9 +24,7 @@ newtype Symbol = Symbol Char
   deriving (Eq, Ord, Show)
 
 ----------------------------------------------------------------------
-
--- * Public API
-
+-- Public API
 ----------------------------------------------------------------------
 
 mkSymbols :: [Char] -> Maybe Symbols

@@ -5,7 +5,7 @@ module Sudoku.PuzzleParserSpec (tests) where
 ----------------------------------------------------------------------
 
 import Data.Foldable (traverse_)
-import Sudoku.Grid (Placements)
+import Sudoku.Placements (Placements)
 import Sudoku.PuzzleParser
   ( ParseError (..),
     parsePuzzle,

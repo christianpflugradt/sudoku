@@ -1,13 +1,13 @@
-module Sudoku.PuzzleParser
-  ( ParseError (..),
-    parsePuzzle,
-  )
-where
+module Sudoku.PuzzleParser (ParseError (..), parsePuzzle) where
+
+----------------------------------------------------------------------
+-- Imports
+----------------------------------------------------------------------
 
 import Data.Char (isAsciiLower, isAsciiUpper, isDigit, isSpace, toLower)
 import Data.Maybe (catMaybes)
 import qualified Data.Set as S
-import Sudoku.Grid
+import Sudoku.Placements
   ( Placements,
   )
 import Sudoku.Symbols
@@ -19,9 +19,7 @@ import Sudoku.Symbols
   )
 
 ----------------------------------------------------------------------
-
--- * Public Types
-
+-- Public Types
 ----------------------------------------------------------------------
 
 data ParseError
@@ -36,9 +34,7 @@ data ParseError
   deriving (Eq, Show)
 
 ----------------------------------------------------------------------
-
--- * Public API
-
+-- Public API
 ----------------------------------------------------------------------
 
 parsePuzzle :: Maybe Symbols -> String -> Either ParseError (Symbols, Placements)
@@ -59,9 +55,7 @@ parsePuzzle symbolsArg input = do
     gridPayload = concatMap (filter (not . isSpace)) gridLines
 
 ----------------------------------------------------------------------
-
--- * Internal Helpers
-
+-- Internal Helpers
 ----------------------------------------------------------------------
 
 type HeaderKey = String

@@ -1,7 +1,4 @@
-module Sudoku.Integration.ValidPuzzlesSpec
-  ( testParseAllValidPuzzles,
-  )
-where
+module Sudoku.Integration.ValidPuzzlesSpec (testParseAllValidPuzzles) where
 
 ----------------------------------------------------------------------
 -- Imports

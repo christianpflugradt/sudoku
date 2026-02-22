@@ -1,11 +1,15 @@
 module Sudoku.TestHelpers
-  ( requireLeft,
+  ( requireEmptyGrid,
+    requireLeft,
     requireRight,
     requireSymbol,
     requireSymbols,
-    requireEmptyGrid,
   )
 where
+
+----------------------------------------------------------------------
+-- Imports
+----------------------------------------------------------------------
 
 import Sudoku.Grid
   ( Grid,
@@ -18,6 +22,10 @@ import Sudoku.Symbols
     mkSymbols,
   )
 import Test.Tasty.HUnit (assertFailure)
+
+----------------------------------------------------------------------
+-- Public API
+----------------------------------------------------------------------
 
 requireRight :: String -> Either e a -> IO a
 requireRight msg = \case

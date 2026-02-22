@@ -1,15 +1,18 @@
 module Main (main) where
 
+----------------------------------------------------------------------
+-- Imports
+----------------------------------------------------------------------
+
 import Control.Exception (IOException)
-import Sudoku.Grid (Grid, PlacementError)
+import Sudoku.Grid (Grid)
 import Sudoku.IO.File (readFileSafe)
+import Sudoku.Placements (PlacementError)
 import Sudoku.PuzzleBuilder (buildPuzzle)
 import Sudoku.PuzzleParser (ParseError, parsePuzzle)
 
 ----------------------------------------------------------------------
-
--- * Configuration
-
+-- Configuration
 ----------------------------------------------------------------------
 
 examplePuzzlePath :: FilePath
@@ -22,9 +25,7 @@ data AppError
   deriving (Show)
 
 ----------------------------------------------------------------------
-
--- * Main
-
+-- Main
 ----------------------------------------------------------------------
 
 main :: IO ()
