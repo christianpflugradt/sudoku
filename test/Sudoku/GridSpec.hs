@@ -530,7 +530,7 @@ testSetCellRemovesCandidateFromPeers =
             Nothing ->
               assertFailure ("peer out of bounds? " ++ show p)
             Just (Fixed _) ->
-              pure () -- fixed peers are ok
+              pure ()
             Just (Empty cands) ->
               assertBool ("expected candidate removed in " ++ show p) (sym1 `S.notMember` cands)
       )
@@ -572,8 +572,6 @@ testSetCellNoCandidates =
     sym3 <- requireSymbol "mkSymbol failed for '3'" allowed '3'
     sym4 <- requireSymbol "mkSymbol failed for '4'" allowed '4'
 
-    -- We make cell (1,0) have only candidate {1} by placing 2/3/4 in its peers.
-    -- Victim: (1,0). Its peers include (2,0) in row, (1,2) in col, (0,1) in box.
     grid1 <- case setCell grid0 (2, 0) sym2 of
       Left e -> assertFailure ("setup failed: " ++ show e) >> error "unreachable"
       Right g -> pure g
@@ -584,7 +582,7 @@ testSetCellNoCandidates =
       Left e -> assertFailure ("setup failed: " ++ show e) >> error "unreachable"
       Right g -> pure g
 
-    -- when: placing 1 at (0,0) is a peer of (1,0), so it removes the last candidate -> NoCandidates
+    -- when
     let actual = setCell grid3 (0, 0) sym1
 
     -- then

@@ -7,6 +7,7 @@ module Main (main) where
 import qualified Sudoku.GeometrySpec as GeometrySpec
 import qualified Sudoku.GridSpec as GridSpec
 import qualified Sudoku.Integration.ValidPuzzlesSpec as ValidPuzzlesSpec
+import qualified Sudoku.PuzzleBuilderSpec as PuzzleBuilderSpec
 import qualified Sudoku.PuzzleParserSpec as PuzzleParserSpec
 import qualified Sudoku.SymbolsSpec as SymbolsSpec
 import Test.Tasty (defaultMain, testGroup)
@@ -22,6 +23,7 @@ main =
       "sudoku"
       [ GeometrySpec.tests,
         GridSpec.tests,
+        PuzzleBuilderSpec.tests,
         PuzzleParserSpec.tests,
         SymbolsSpec.tests,
         ValidPuzzlesSpec.testParseAllValidPuzzles
