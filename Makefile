@@ -12,7 +12,7 @@ lint:
 test:
 	cabal test
 
-check: build lint test
+check: format build lint test
 
 run:
 	cabal run sudoku
