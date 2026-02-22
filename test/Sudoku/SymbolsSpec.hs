@@ -4,17 +4,15 @@ module Sudoku.SymbolsSpec (tests) where
 -- Imports
 ----------------------------------------------------------------------
 
-import Test.Tasty (TestTree, testGroup)
-import Test.Tasty.HUnit (testCase, assertEqual, assertFailure)
-
 import Sudoku.Symbols
-  ( mkSymbols
-  , mkSymbol
+  ( mkSymbol,
+    mkSymbols,
   )
-
 import Sudoku.TestHelpers
-  ( requireSymbols
+  ( requireSymbols,
   )
+import Test.Tasty (TestTree, testGroup)
+import Test.Tasty.HUnit (assertEqual, assertFailure, testCase)
 
 ----------------------------------------------------------------------
 -- Test suite
@@ -22,17 +20,20 @@ import Sudoku.TestHelpers
 
 tests :: TestTree
 tests =
-  testGroup "Grid"
-    [ testGroup "mkSymbols"
-        [ testMkSymbolsEmpty
-        , testMkSymbolsUnique4
-        , testMkSymbolsSingle
-        , testMkSymbolsDuplicateAdjacent
-        , testMkSymbolsDuplicateNonAdjacent
-        ]
-    , testGroup "mkSymbol"
-        [ testMkSymbolAllowed
-        , testMkSymbolDisallowed
+  testGroup
+    "Grid"
+    [ testGroup
+        "mkSymbols"
+        [ testMkSymbolsEmpty,
+          testMkSymbolsUnique4,
+          testMkSymbolsSingle,
+          testMkSymbolsDuplicateAdjacent,
+          testMkSymbolsDuplicateNonAdjacent
+        ],
+      testGroup
+        "mkSymbol"
+        [ testMkSymbolAllowed,
+          testMkSymbolDisallowed
         ]
     ]
 
@@ -56,14 +57,14 @@ testMkSymbolsUnique4 :: TestTree
 testMkSymbolsUnique4 =
   testCase "unique list -> Just" $ do
     -- given
-    let input = ['1'..'4']
+    let input = ['1' .. '4']
 
     -- when
     let actual = mkSymbols input
 
     -- then
     case actual of
-      Just _  -> pure ()
+      Just _ -> pure ()
       Nothing -> assertFailure "expected Just value"
 
 testMkSymbolsSingle :: TestTree
@@ -77,14 +78,14 @@ testMkSymbolsSingle =
 
     -- then
     case actual of
-      Just _  -> pure ()
+      Just _ -> pure ()
       Nothing -> assertFailure "expected Just value"
 
 testMkSymbolsDuplicateAdjacent :: TestTree
 testMkSymbolsDuplicateAdjacent =
   testCase "adjacent duplicate -> Nothing" $ do
     -- given
-    let input = ['1','1','2','3']
+    let input = ['1', '1', '2', '3']
 
     -- when
     let actual = mkSymbols input
@@ -96,7 +97,7 @@ testMkSymbolsDuplicateNonAdjacent :: TestTree
 testMkSymbolsDuplicateNonAdjacent =
   testCase "non-adjacent duplicate -> Nothing" $ do
     -- given
-    let input = ['1','2','3','1']
+    let input = ['1', '2', '3', '1']
 
     -- when
     let actual = mkSymbols input
@@ -112,8 +113,8 @@ testMkSymbolAllowed :: TestTree
 testMkSymbolAllowed =
   testCase "allowed char -> Just" $ do
     -- given
-    let allowedChars = ['1'..'4']
-        input        = '2'
+    let allowedChars = ['1' .. '4']
+        input = '2'
 
     allowed <- requireSymbols "mkSymbols failed for ['1'..'4']" allowedChars
 
@@ -122,15 +123,15 @@ testMkSymbolAllowed =
 
     -- then
     case actual of
-      Just _  -> pure ()
+      Just _ -> pure ()
       Nothing -> assertFailure "expected Just value"
 
 testMkSymbolDisallowed :: TestTree
 testMkSymbolDisallowed =
   testCase "disallowed char -> Nothing" $ do
     -- given
-    let allowedChars = ['1'..'4']
-        input        = '9'
+    let allowedChars = ['1' .. '4']
+        input = '9'
 
     allowed <- requireSymbols "mkSymbols failed for ['1'..'4']" allowedChars
 

@@ -1,25 +1,26 @@
 module Sudoku.PuzzleBuilder
-  ( buildPuzzle
-  ) where
+  ( buildPuzzle,
+  )
+where
 
 import Control.Monad (foldM)
-
 import Sudoku.Grid
-  ( Placements
-  , PlacementError
-  , Coordinate
-  , Grid
-  , emptyGrid
-  , setCell
+  ( Coordinate,
+    Grid,
+    PlacementError,
+    Placements,
+    emptyGrid,
+    setCell,
   )
-
 import Sudoku.Symbols
-  ( Symbol
-  , Symbols
+  ( Symbol,
+    Symbols,
   )
 
 ----------------------------------------------------------------------
+
 -- * Public API
+
 ----------------------------------------------------------------------
 
 buildPuzzle :: Symbols -> Placements -> Either PlacementError Grid

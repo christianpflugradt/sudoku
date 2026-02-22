@@ -1,35 +1,37 @@
 module Sudoku.Grid
-    ( Candidates
-    , Cell(..)
-    , Coordinate
-    , Placements
-    , PlacementError
-    , Unit
-    , Grid
-    , emptyGrid
-    , sideLength
-    , boundsOf
-    , rowOf
-    , colOf
-    , boxOf
-    , cellAt
-    , setCell
-    , allCoordinates
-    ) where
+  ( Candidates,
+    Cell (..),
+    Coordinate,
+    Placements,
+    PlacementError,
+    Unit,
+    Grid,
+    emptyGrid,
+    sideLength,
+    boundsOf,
+    rowOf,
+    colOf,
+    boxOf,
+    cellAt,
+    setCell,
+    allCoordinates,
+  )
+where
 
-import Control.Monad (when, foldM)
-import qualified Data.Set as S
+import Control.Monad (foldM, when)
 import Data.Array (Array, (!), (//))
 import qualified Data.Array as A
-
+import qualified Data.Set as S
 import Sudoku.Symbols
-  ( Symbol
-  , Symbols
-  , symbolsList
+  ( Symbol,
+    Symbols,
+    symbolsList,
   )
 
 ----------------------------------------------------------------------
+
 -- * Public Types
+
 ----------------------------------------------------------------------
 
 type Candidates = S.Set Symbol
@@ -38,7 +40,9 @@ data Cell = Fixed Symbol | Empty Candidates
   deriving (Eq, Show)
 
 type Coordinate = (Int, Int)
+
 type Placements = [(Coordinate, Symbol)]
+
 type Unit = [Coordinate]
 
 data PlacementError
@@ -46,31 +50,37 @@ data PlacementError
   | AlreadySet
   | DuplicateInUnit
   | NoCandidates
-  deriving(Eq, Show)
+  deriving (Eq, Show)
 
 data Grid = Grid
-  { allowed :: Symbols
-  , cells :: Array Coordinate Cell
-  } deriving (Eq, Show)
+  { allowed :: Symbols,
+    cells :: Array Coordinate Cell
+  }
+  deriving (Eq, Show)
 
 ----------------------------------------------------------------------
+
 -- * Public API
+
 ----------------------------------------------------------------------
 
 emptyGrid :: Symbols -> Maybe Grid
 emptyGrid symbols
-  | perfectSquare = Just (Grid
-      { allowed = symbols
-      , cells = A.array ((0, 0), (upper, upper)) (map (, value) keys)
-      })
-  | otherwise     = Nothing
+  | perfectSquare =
+      Just
+        ( Grid
+            { allowed = symbols,
+              cells = A.array ((0, 0), (upper, upper)) (map (,value) keys)
+            }
+        )
+  | otherwise = Nothing
   where
     n = length (symbolsList symbols)
     b = floor (sqrt (fromIntegral n :: Double))
     perfectSquare = b * b == n
     upper = n - 1
     value = Empty (allCandidates symbols)
-    keys  = [ (x, y) | x <- [0..upper], y <- [0..upper] ]
+    keys = [(x, y) | x <- [0 .. upper], y <- [0 .. upper]]
 
 sideLength :: Grid -> Int
 sideLength grid = length (symbolsList (allowed grid))
@@ -81,22 +91,22 @@ boundsOf grid = ((0, 0), (upper, upper))
     upper = length (symbolsList (allowed grid)) - 1
 
 allCoordinates :: Grid -> [Coordinate]
-allCoordinates grid = [ (x, y) | x <- [0..upper], y <- [0..upper] ]
+allCoordinates grid = [(x, y) | x <- [0 .. upper], y <- [0 .. upper]]
   where
     upper = sideLength grid - 1
 
 rowOf :: Grid -> Coordinate -> Unit
-rowOf grid (_, coordY) = [(x, coordY) | x <- [0..upperX]]
+rowOf grid (_, coordY) = [(x, coordY) | x <- [0 .. upperX]]
   where
     ((_, _), (upperX, _)) = boundsOf grid
 
 colOf :: Grid -> Coordinate -> Unit
-colOf grid (coordX, _) = [(coordX, y) | y <- [0..upperY]]
+colOf grid (coordX, _) = [(coordX, y) | y <- [0 .. upperY]]
   where
     ((_, _), (_, upperY)) = boundsOf grid
 
 boxOf :: Grid -> Coordinate -> Unit
-boxOf grid (x, y) = [(boxX, boxY) | boxX <- [fromX..toX], boxY <- [fromY..toY]]
+boxOf grid (x, y) = [(boxX, boxY) | boxX <- [fromX .. toX], boxY <- [fromY .. toY]]
   where
     n = sideLength grid
     b = floor (sqrt (fromIntegral n :: Double))
@@ -108,12 +118,12 @@ boxOf grid (x, y) = [(boxX, boxY) | boxX <- [fromX..toX], boxY <- [fromY..toY]]
 cellAt :: Grid -> Coordinate -> Maybe Cell
 cellAt grid coord
   | A.inRange (A.bounds (cells grid)) coord = Just (cells grid ! coord)
-  | otherwise                              = Nothing
+  | otherwise = Nothing
 
 setCell :: Grid -> Coordinate -> Symbol -> Either PlacementError Grid
 setCell grid coord symbol = do
   case cellAt grid coord of
-    Nothing        -> Left OutOfBounds
+    Nothing -> Left OutOfBounds
     Just (Fixed _) -> Left AlreadySet
     Just (Empty _) -> Right ()
 
@@ -126,7 +136,9 @@ setCell grid coord symbol = do
   foldM (removeCandidateFromPeer symbol) updatedGrid peers
 
 ----------------------------------------------------------------------
+
 -- * Internal Helpers
+
 ----------------------------------------------------------------------
 
 allCandidates :: Symbols -> Candidates
@@ -136,7 +148,7 @@ unitFns :: [Grid -> Coordinate -> Unit]
 unitFns = [rowOf, colOf, boxOf]
 
 peersOf :: Grid -> Coordinate -> [Coordinate]
-peersOf grid coord = filter (/= coord) . S.toList . S.fromList . concat $ [ fn grid coord | fn <- unitFns ]
+peersOf grid coord = filter (/= coord) . S.toList . S.fromList . concat $ [fn grid coord | fn <- unitFns]
 
 removeCandidateFromPeer :: Symbol -> Grid -> Coordinate -> Either PlacementError Grid
 removeCandidateFromPeer sym grid coord =
@@ -145,9 +157,9 @@ removeCandidateFromPeer sym grid coord =
     Just (Fixed _) -> Right grid
     Just (Empty candidates) ->
       let candidates' = S.delete sym candidates
-      in if S.null candidates'
-           then Left NoCandidates
-           else Right (setCellValue grid coord (Empty candidates'))
+       in if S.null candidates'
+            then Left NoCandidates
+            else Right (setCellValue grid coord (Empty candidates'))
 
 setCellValue :: Grid -> Coordinate -> Cell -> Grid
-setCellValue grid coord cell = grid { cells = cells grid // [(coord, cell)] }
+setCellValue grid coord cell = grid {cells = cells grid // [(coord, cell)]}

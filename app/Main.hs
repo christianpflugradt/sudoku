@@ -1,14 +1,15 @@
 module Main (main) where
 
 import Control.Exception (IOException)
-
 import Sudoku.Grid (Grid, PlacementError)
 import Sudoku.IO.File (readFileSafe)
-import Sudoku.PuzzleParser (ParseError, parsePuzzle)
 import Sudoku.PuzzleBuilder (buildPuzzle)
+import Sudoku.PuzzleParser (ParseError, parsePuzzle)
 
 ----------------------------------------------------------------------
+
 -- * Configuration
+
 ----------------------------------------------------------------------
 
 examplePuzzlePath :: FilePath
@@ -21,7 +22,9 @@ data AppError
   deriving (Show)
 
 ----------------------------------------------------------------------
+
 -- * Main
+
 ----------------------------------------------------------------------
 
 main :: IO ()
@@ -30,7 +33,7 @@ main = do
 
   result <- run examplePuzzlePath
   case result of
-    Left err  -> putStrLn ("Error: " ++ show err)
+    Left err -> putStrLn ("Error: " ++ show err)
     Right grid -> print grid
 
 run :: FilePath -> IO (Either AppError Grid)

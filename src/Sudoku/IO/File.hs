@@ -1,6 +1,7 @@
 module Sudoku.IO.File
-  ( readFileSafe
-  ) where
+  ( readFileSafe,
+  )
+where
 
 import Control.Exception (IOException, try)
 

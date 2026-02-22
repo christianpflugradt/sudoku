@@ -1,26 +1,27 @@
 module Sudoku.PuzzleParser
-  ( ParseError(..)
-  , parsePuzzle
-  ) where
+  ( ParseError (..),
+    parsePuzzle,
+  )
+where
 
 import Data.Char (isAsciiLower, isAsciiUpper, isDigit, isSpace, toLower)
 import Data.Maybe (catMaybes)
 import qualified Data.Set as S
-
-import Sudoku.Symbols
-  ( Symbols
-  , mkSymbol
-  , mkSymbols
-  , symbolChar
-  , symbolsList
-  )
-
 import Sudoku.Grid
-  ( Placements
+  ( Placements,
+  )
+import Sudoku.Symbols
+  ( Symbols,
+    mkSymbol,
+    mkSymbols,
+    symbolChar,
+    symbolsList,
   )
 
 ----------------------------------------------------------------------
+
 -- * Public Types
+
 ----------------------------------------------------------------------
 
 data ParseError
@@ -35,7 +36,9 @@ data ParseError
   deriving (Eq, Show)
 
 ----------------------------------------------------------------------
+
 -- * Public API
+
 ----------------------------------------------------------------------
 
 parsePuzzle :: Maybe Symbols -> String -> Either ParseError (Symbols, Placements)
@@ -56,10 +59,13 @@ parsePuzzle symbolsArg input = do
     gridPayload = concatMap (filter (not . isSpace)) gridLines
 
 ----------------------------------------------------------------------
+
 -- * Internal Helpers
+
 ----------------------------------------------------------------------
 
-type HeaderKey   = String
+type HeaderKey = String
+
 type HeaderValue = String
 
 splitHeaderSection :: [String] -> ([String], [String])
@@ -68,8 +74,8 @@ splitHeaderSection = span (\ln -> all isSpace ln || looksLikeHeaderLine ln)
 looksLikeHeaderLine :: String -> Bool
 looksLikeHeaderLine line =
   case break (== ':') line of
-    (key, ':':_) -> not (null key) && all looksLikeHeaderKeyChar key
-    _            -> False
+    (key, ':' : _) -> not (null key) && all looksLikeHeaderKeyChar key
+    _ -> False
   where
     looksLikeHeaderKeyChar ch = isHeaderKeyChar ch || ch `elem` "_/."
 
@@ -79,13 +85,13 @@ collectHeaders headerLines = traverse parseHeaderLine (filter (not . all isSpace
 parseHeaderLine :: String -> Either ParseError (HeaderKey, HeaderValue)
 parseHeaderLine line =
   case break (== ':') line of
-    (key, ':':' ':value)
-      | null key                      -> Left InvalidHeader
-      | head key == '-'                -> Left InvalidHeader
+    (key, ':' : ' ' : value)
+      | null key -> Left InvalidHeader
+      | head key == '-' -> Left InvalidHeader
       | not (all isHeaderKeyChar key) -> Left InvalidHeader
-      | null value                    -> Left InvalidHeader
-      | otherwise                     -> Right (map toLower key, value)
-    _                                 -> Left InvalidHeader
+      | null value -> Left InvalidHeader
+      | otherwise -> Right (map toLower key, value)
+    _ -> Left InvalidHeader
 
 isHeaderKeyChar :: Char -> Bool
 isHeaderKeyChar ch = isAsciiLower ch || isAsciiUpper ch || isDigit ch || ch == '-'
@@ -93,28 +99,25 @@ isHeaderKeyChar ch = isAsciiLower ch || isAsciiUpper ch || isDigit ch || ch == '
 ensureNoDuplicateHeaders :: [(HeaderKey, HeaderValue)] -> Either ParseError [(HeaderKey, HeaderValue)]
 ensureNoDuplicateHeaders headers
   | length keys == S.size (S.fromList keys) = Right headers
-  | otherwise                               = Left DuplicateHeader
+  | otherwise = Left DuplicateHeader
   where
-    keys = [ k | (k, _) <- headers ]
+    keys = [k | (k, _) <- headers]
 
 resolveSymbols :: Maybe Symbols -> Maybe String -> String -> Either ParseError Symbols
 resolveSymbols argSymbols headerSymbolsValue payload =
   case (argSymbols, headerSymbolsValue) of
-    (Just sArg, Nothing)        -> do
+    (Just sArg, Nothing) -> do
       validateSymbols sArg
       Right sArg
-
     (Just sArg, Just rawHeader) -> do
       validateSymbols sArg
       sHeader <- parseDeclaredSymbols rawHeader
       if symbolsList sArg == symbolsList sHeader
         then Right sArg
         else Left AmbiguousSymbols
-
-    (Nothing, Just rawHeader)   ->
+    (Nothing, Just rawHeader) ->
       parseDeclaredSymbols rawHeader
-
-    (Nothing, Nothing)          ->
+    (Nothing, Nothing) ->
       inferSymbolsFromPayload payload
 
 parseDeclaredSymbols :: String -> Either ParseError Symbols
@@ -122,57 +125,57 @@ parseDeclaredSymbols raw = do
   validateDeclaredSymbolsChars raw
   case mkSymbols raw of
     Nothing -> Left DuplicateDeclaredSymbols
-    Just s  -> Right s
+    Just s -> Right s
 
 validateDeclaredSymbolsChars :: String -> Either ParseError ()
 validateDeclaredSymbolsChars xs
-  | null xs        = Left InvalidSymbols
+  | null xs = Left InvalidSymbols
   | any invalid xs = Left InvalidSymbols
-  | otherwise      = Right ()
+  | otherwise = Right ()
   where
     invalid c = isSpace c || c == '.' || c == ':'
 
 validateSymbols :: Symbols -> Either ParseError ()
 validateSymbols s
   | any invalid (symbolsList s) = Left InvalidSymbols
-  | otherwise                   = Right ()
+  | otherwise = Right ()
   where
     invalid sym =
       let c = symbolChar sym
-      in isSpace c || c == '.' || c == ':'
+       in isSpace c || c == '.' || c == ':'
 
 inferSymbolsFromPayload :: String -> Either ParseError Symbols
 inferSymbolsFromPayload payload =
   case mkSymbols syms of
     Nothing -> Left InvalidSymbols
-    Just s  -> Right s
+    Just s -> Right s
   where
-    syms = S.toList . S.fromList $ [ c | c <- payload, c /= '.', not (isSpace c) ]
+    syms = S.toList . S.fromList $ [c | c <- payload, c /= '.', not (isSpace c)]
 
 validateGridAndGetSideLength :: String -> Either ParseError Int
 validateGridAndGetSideLength payload
-  | len == 0     = Left MalformedGrid
+  | len == 0 = Left MalformedGrid
   | n * n /= len = Left MalformedGrid
-  | b * b /= n   = Left UnsupportedGridShape
-  | otherwise    = Right n
+  | b * b /= n = Left UnsupportedGridShape
+  | otherwise = Right n
   where
     len = length payload
-    n   = isqrt len
-    b   = isqrt n
+    n = isqrt len
+    b = isqrt n
     isqrt x = floor (sqrt (fromIntegral x :: Double))
 
 validateSymbolCountMatchesGrid :: Symbols -> Int -> Either ParseError ()
 validateSymbolCountMatchesGrid symbols sideLength
   | length (symbolsList symbols) == sideLength = Right ()
-  | otherwise                                  = Left SymbolCountMismatch
+  | otherwise = Left SymbolCountMismatch
 
 payloadToPlacements :: Symbols -> Int -> String -> Either ParseError Placements
 payloadToPlacements symbols n payload =
-  catMaybes <$> traverse mkPlacement (zip [0..] payload)
+  catMaybes <$> traverse mkPlacement (zip [0 ..] payload)
   where
     mkPlacement (_, '.') = Right Nothing
     mkPlacement (i, ch) =
       case mkSymbol symbols ch of
-        Nothing     -> Left MalformedGrid
+        Nothing -> Left MalformedGrid
         Just symbol ->
           Right (Just ((i `mod` n, i `div` n), symbol))

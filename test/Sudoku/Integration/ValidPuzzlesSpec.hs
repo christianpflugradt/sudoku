@@ -1,6 +1,7 @@
 module Sudoku.Integration.ValidPuzzlesSpec
-  ( testParseAllValidPuzzles
-  ) where
+  ( testParseAllValidPuzzles,
+  )
+where
 
 ----------------------------------------------------------------------
 -- Imports
@@ -8,12 +9,11 @@ module Sudoku.Integration.ValidPuzzlesSpec
 
 import Control.Monad (forM, forM_, when)
 import Data.List (sort)
-import System.Directory (listDirectory, doesDirectoryExist)
-import System.FilePath ((</>), takeExtension)
-import Test.Tasty (TestTree, testGroup)
-import Test.Tasty.HUnit (testCase, assertFailure)
-
 import Sudoku.PuzzleParser (parsePuzzle)
+import System.Directory (doesDirectoryExist, listDirectory)
+import System.FilePath (takeExtension, (</>))
+import Test.Tasty (TestTree, testGroup)
+import Test.Tasty.HUnit (assertFailure, testCase)
 
 ----------------------------------------------------------------------
 -- Test
@@ -21,7 +21,8 @@ import Sudoku.PuzzleParser (parsePuzzle)
 
 testParseAllValidPuzzles :: TestTree
 testParseAllValidPuzzles =
-  testGroup "integration"
+  testGroup
+    "integration"
     [ testCase "parses all puzzles/valid/**/*.sdk successfully" $ do
         files <- sort <$> listSdkFilesRecursive "puzzles/valid"
         when (null files) $ assertFailure "No .sdk files found under puzzles/valid"
@@ -29,11 +30,12 @@ testParseAllValidPuzzles =
           input <- readFile fp
           case parsePuzzle Nothing input of
             Left err ->
-              assertFailure $ unlines
-                [ "Expected Right, but got Left"
-                , "File: " ++ fp
-                , "Error: " ++ show err
-                ]
+              assertFailure $
+                unlines
+                  [ "Expected Right, but got Left",
+                    "File: " ++ fp,
+                    "Error: " ++ show err
+                  ]
             Right _ -> pure ()
     ]
 
