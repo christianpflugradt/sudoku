@@ -10,6 +10,7 @@ module Sudoku.Grid
     boundsOf,
     cellAt,
     emptyGrid,
+    isComplete,
     setCell,
     sideLength,
   )
@@ -101,6 +102,17 @@ setCell grid coord symbol = do
     Left DuplicateInUnit
   let updatedGrid = setCellValue grid coord (Fixed symbol)
   foldM (removeCandidateFromPeer symbol) updatedGrid peers
+
+isComplete :: Grid -> Bool
+isComplete grid =
+  all (isFixed . requireCellAt grid) (allCoordinates grid)
+  where
+    isFixed (Fixed _) = True
+    isFixed (Empty _) = False
+    requireCellAt g coord =
+      case cellAt g coord of
+        Just c -> c
+        Nothing -> error ("unreachable: cellAt returned Nothing for " ++ show coord)
 
 ----------------------------------------------------------------------
 -- Internal Helpers

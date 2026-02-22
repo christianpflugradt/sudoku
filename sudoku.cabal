@@ -26,6 +26,7 @@ library
         Sudoku.Placements
         Sudoku.PuzzleBuilder
         Sudoku.PuzzleParser
+        Sudoku.PuzzleSolver
         Sudoku.Symbols
     build-depends:
         base ^>=4.22.0.0,
@@ -44,6 +45,9 @@ executable sudoku
         base ^>=4.22.0.0,
         sudoku
     default-language: Haskell2010
+    default-extensions:
+        LambdaCase,
+        TupleSections
 
 test-suite sudoku-tests
     import: warnings
