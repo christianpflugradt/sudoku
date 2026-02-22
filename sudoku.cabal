@@ -20,6 +20,9 @@ library
     import: warnings
     hs-source-dirs: src
     exposed-modules:
+        Sudoku.App.Options
+        Sudoku.App.Render
+        Sudoku.App.Runner
         Sudoku.Geometry
         Sudoku.Grid
         Sudoku.IO.File
@@ -31,7 +34,10 @@ library
     build-depends:
         base ^>=4.22.0.0,
         containers,
-        array
+        array,
+        directory,
+        filepath,
+        time
     default-language: Haskell2010
     default-extensions:
         LambdaCase,

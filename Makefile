@@ -15,7 +15,10 @@ test:
 check: format build lint test
 
 run:
-	cabal run sudoku
+	cabal run sudoku --  --print-partial-solution --headers --stats puzzles/valid/9x9/classic-9x9-easy-9a0f5232245e02c6.sdk
+
+run-dir:
+	cabal run sudoku -- --dir puzzles/valid --print-partial-solution --print=solution --stats
 
 clean:
 	cabal clean
