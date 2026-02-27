@@ -4,10 +4,18 @@ module Sudoku.PuzzleSolverSpec (tests) where
 -- Imports
 ----------------------------------------------------------------------
 
+import Sudoku.Grid (Grid)
 import Sudoku.PuzzleBuilder (buildPuzzle)
-import Sudoku.PuzzleSolver (SolveResult (..), solve)
+import Sudoku.PuzzleSolver
+  ( AfterStep (..),
+    PuzzleError (..),
+    SolveResult (..),
+    SolvingStrategy,
+    solveWith,
+  )
 import Sudoku.TestHelpers
   ( requireEmptyGrid,
+    requireLeft,
     requireRight,
     requireSymbol,
     requireSymbols,
@@ -23,39 +31,95 @@ tests :: TestTree
 tests =
   testGroup
     "PuzzleSolver"
-    [ testSolveCompleteGrid,
-      testSolveIncompleteGrid
+    [ testSolveWithCompleteGrid,
+      testSolveWithStuckStrategy,
+      testSolveWithProgressStrategy,
+      testSolveWithContradiction
     ]
 
 ----------------------------------------------------------------------
 -- Test cases
 ----------------------------------------------------------------------
 
-testSolveCompleteGrid :: TestTree
-testSolveCompleteGrid =
-  testCase "solve returns Solved when grid is complete" $ do
+testSolveWithCompleteGrid :: TestTree
+testSolveWithCompleteGrid =
+  testCase "solveWith returns Solved when grid is complete" $ do
     -- given
     let allowedChars = ['1']
     symbols <- requireSymbols "mkSymbols failed for ['1']" allowedChars
     sym1 <- requireSymbol "mkSymbol failed for '1'" symbols '1'
     grid <- requireRight "expected Right grid" (buildPuzzle symbols [((0, 0), sym1)])
 
+    let expected = Solved grid
+
     -- when
-    result <- requireRight "expected Right Solved" (solve grid)
+    actual <- requireRight "expected Right Solved" (solveWith [] grid)
 
     -- then
-    assertEqual "result" (Solved grid) result
+    assertEqual "result" expected actual
 
-testSolveIncompleteGrid :: TestTree
-testSolveIncompleteGrid =
-  testCase "solve returns Unsolvable when no strategy makes progress" $ do
+testSolveWithStuckStrategy :: TestTree
+testSolveWithStuckStrategy =
+  testCase "solveWith returns Unsolvable when strategies are stuck" $ do
     -- given
     let allowedChars = ['1']
     symbols <- requireSymbols "mkSymbols failed for ['1']" allowedChars
     grid <- requireEmptyGrid "emptyGrid returned Nothing for 1x1 symbols" symbols
 
+    let strategies = [stuckStrategy]
+    let expected = Unsolvable grid
+
     -- when
-    result <- requireRight "expected Right Unsolvable" (solve grid)
+    actual <- requireRight "expected Right Unsolvable" (solveWith strategies grid)
 
     -- then
-    assertEqual "result" (Unsolvable grid) result
+    assertEqual "result" expected actual
+
+testSolveWithProgressStrategy :: TestTree
+testSolveWithProgressStrategy =
+  testCase "solveWith returns Solved when a strategy makes progress" $ do
+    -- given
+    let allowedChars = ['1']
+    symbols <- requireSymbols "mkSymbols failed for ['1']" allowedChars
+    sym1 <- requireSymbol "mkSymbol failed for '1'" symbols '1'
+    start <- requireEmptyGrid "emptyGrid returned Nothing for 1x1 symbols" symbols
+    solved <- requireRight "expected Right grid" (buildPuzzle symbols [((0, 0), sym1)])
+
+    let strategies = [progressTo solved]
+    let expected = Solved solved
+
+    -- when
+    actual <- requireRight "expected Right Solved" (solveWith strategies start)
+
+    -- then
+    assertEqual "result" expected actual
+
+testSolveWithContradiction :: TestTree
+testSolveWithContradiction =
+  testCase "solveWith returns Left Contradiction when a strategy fails" $ do
+    -- given
+    let allowedChars = ['1']
+    symbols <- requireSymbols "mkSymbols failed for ['1']" allowedChars
+    grid <- requireEmptyGrid "emptyGrid returned Nothing for 1x1 symbols" symbols
+
+    let strategies = [contradictionStrategy]
+    let expected = Contradiction
+
+    -- when
+    actual <- requireLeft "expected Left Contradiction" (solveWith strategies grid)
+
+    -- then
+    assertEqual "error" expected actual
+
+----------------------------------------------------------------------
+-- Test strategies
+----------------------------------------------------------------------
+
+stuckStrategy :: SolvingStrategy
+stuckStrategy _ = Right Stuck
+
+progressTo :: Grid -> SolvingStrategy
+progressTo solvedGrid _ = Right (Progress solvedGrid)
+
+contradictionStrategy :: SolvingStrategy
+contradictionStrategy _ = Left Contradiction
