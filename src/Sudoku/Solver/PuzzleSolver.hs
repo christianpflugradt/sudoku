@@ -13,11 +13,11 @@ import Sudoku.Grid
   ( Grid,
     isComplete,
   )
+import Sudoku.Solver.NakedSingleStrategy (nakedSingleStrategy)
 import Sudoku.Solver.Strategy
   ( AfterStep (..),
     PuzzleError (..),
     Strategy,
-    strategies,
   )
 
 ----------------------------------------------------------------------
@@ -58,3 +58,6 @@ step strats grid = go strats
         Left err -> Left err
         Right (Progress updated) -> Right (Progress updated)
         Right Stuck -> go remaining
+
+strategies :: [Strategy]
+strategies = [nakedSingleStrategy]

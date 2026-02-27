@@ -2,7 +2,6 @@ module Sudoku.Solver.Strategy
   ( AfterStep (..),
     PuzzleError (..),
     Strategy,
-    strategies,
   )
 where
 
@@ -25,10 +24,3 @@ data PuzzleError
   deriving (Eq, Show)
 
 type Strategy = Grid -> Either PuzzleError AfterStep
-
-----------------------------------------------------------------------
--- Public API
-----------------------------------------------------------------------
-
-strategies :: [Strategy]
-strategies = []
