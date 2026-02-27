@@ -1,0 +1,169 @@
+name: Publish
+
+on:
+  workflow_call:
+    inputs:
+      # What to build: e.g. "v0.1.0" or "main" or a full sha.
+      ref:
+        required: true
+        type: string
+
+      # GitHub Release tag to publish to: e.g. "v0.1.0" or "latest-snapshot".
+      release_tag:
+        required: true
+        type: string
+
+      # Human-readable release title (optional). If empty, defaults to release_tag.
+      release_title:
+        required: false
+        type: string
+        default: ""
+
+      # Mark release as prerelease (true for snapshot).
+      prerelease:
+        required: true
+        type: boolean
+
+      # Asset prefix, used in filenames, e.g. "sudoku-v0.1.0" or "sudoku-snapshot".
+      asset_prefix:
+        required: true
+        type: string
+
+permissions:
+  contents: write
+
+jobs:
+  publish:
+    name: Publish (${{ matrix.os }})
+    runs-on: ${{ matrix.os }}
+    concurrency:
+      group: publish-${{ inputs.release_tag }}-${{ matrix.os }}
+    strategy:
+      fail-fast: false
+      matrix:
+        os: [ubuntu-22.04, macos-14, windows-latest]
+
+    steps:
+      - name: Checkout
+        uses: actions/checkout@v4
+        with:
+          fetch-depth: 0
+          ref: ${{ inputs.ref }}
+
+      - name: Setup Haskell
+        uses: haskell-actions/setup@v2
+        with:
+          ghc-version: "9.8.2"
+          cabal-version: "3.12.1.0"
+          cabal-update: true
+
+      - name: Cache Cabal
+        uses: actions/cache@v4
+        with:
+          path: |
+            ~/.cabal/packages
+            ~/.cabal/store
+            dist-newstyle
+          key: ${{ runner.os }}-cabal-${{ hashFiles('**/*.cabal', 'cabal.project', 'cabal.project.freeze') }}
+          restore-keys: |
+            ${{ runner.os }}-cabal-
+
+      - name: Build
+        run: cabal build exe:sudoku
+
+      - name: Smoke test solver (macOS/Linux)
+        if: runner.os != 'Windows'
+        shell: bash
+        run: |
+          set -euo pipefail
+
+          BIN="$(cabal list-bin exe:sudoku)"
+
+          printf "3.21\n.14.\n.2..\n.31.\n" > /tmp/smoke.sdk
+          printf "3421\n2143\n1234\n4312" > /tmp/expected.txt
+
+          OUT="$("$BIN" --print=solution --format=compact /tmp/smoke.sdk | tr -d '\r')"
+          OUT_NOHDR="$(printf "%s" "$OUT" | sed '/^[[:space:]]*--- /d' | sed '/^[[:space:]]*$/d')"
+
+          printf "%s" "$OUT_NOHDR" > /tmp/actual.txt
+          diff -u /tmp/expected.txt /tmp/actual.txt
+
+      - name: Smoke test solver (Windows)
+        if: runner.os == 'Windows'
+        shell: pwsh
+        run: |
+          $bin = (cabal list-bin exe:sudoku).Trim()
+          $p = Join-Path $env:TEMP "smoke.sdk"
+
+          "3.21`n.14.`n.2..`n.31.`n" | Set-Content -NoNewline -Encoding ASCII $p
+
+          $expected = "3421`n2143`n1234`n4312`n"
+          $out = & $bin --print=solution --format=compact $p
+
+          $lines = ($out -split "`r?`n") | Where-Object { $_ -notmatch '^--- .* ---$' -and $_.Trim() -ne "" }
+          $outNorm = ($lines -join "`n") + "`n"
+
+          if ($outNorm -ne $expected) {
+            Write-Host "Expected:"
+            Write-Host $expected
+            Write-Host "Got:"
+            Write-Host $outNorm
+            exit 1
+          }
+
+      - name: Prepare asset (macOS/Linux)
+        if: runner.os != 'Windows'
+        shell: bash
+        run: |
+          set -euo pipefail
+          BIN="$(cabal list-bin exe:sudoku)"
+          mkdir -p out
+
+          if [[ "${{ runner.os }}" == "macOS" ]]; then
+            cp "$BIN" "out/${{ inputs.asset_prefix }}-macos-arm64"
+          else
+            cp "$BIN" "out/${{ inputs.asset_prefix }}-linux-x86_64"
+          fi
+
+      - name: Prepare asset (Windows)
+        if: runner.os == 'Windows'
+        shell: pwsh
+        run: |
+          $bin = (cabal list-bin exe:sudoku).Trim()
+          New-Item -ItemType Directory -Force -Path out | Out-Null
+          Copy-Item $bin "out/${{ inputs.asset_prefix }}-windows-x86_64.exe"
+
+      - name: Create/Update GitHub Release + upload asset
+        env:
+          GH_TOKEN: ${{ secrets.GITHUB_TOKEN }}
+        shell: bash
+        run: |
+          set -euo pipefail
+
+          TAG="${{ inputs.release_tag }}"
+          TITLE="${{ inputs.release_title }}"
+          if [[ -z "$TITLE" ]]; then
+            TITLE="$TAG"
+          fi
+
+          # Create release if missing; otherwise update prerelease flag/title.
+          if gh release view "$TAG" >/dev/null 2>&1; then
+            if [[ "${{ inputs.prerelease }}" == "true" ]]; then
+              gh release edit "$TAG" --title "$TITLE" --prerelease
+            else
+              gh release edit "$TAG" --title "$TITLE" --prerelease=false
+            fi
+          else
+            if [[ "${{ inputs.prerelease }}" == "true" ]]; then
+              gh release create "$TAG" --title "$TITLE" --notes "Automated build for $TAG" --prerelease
+            else
+              gh release create "$TAG" --title "$TITLE" --notes "Automated build for $TAG"
+            fi
+          fi
+
+          # Replace assets for this runner (delete old asset with same name).
+          for f in out/*; do
+            name="$(basename "$f")"
+            gh release delete-asset "$TAG" "$name" -y >/dev/null 2>&1 || true
+            gh release upload "$TAG" "$f" --clobber
+          done

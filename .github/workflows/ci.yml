@@ -4,46 +4,23 @@ on:
   push:
   pull_request:
 
+permissions:
+  contents: read
+
 jobs:
-  build-and-test:
-    runs-on: ubuntu-latest
+  checks:
+    uses: ./.github/workflows/checks.yml
 
-    env:
-      HLINT_VERSION: "3.10"
-
-    steps:
-      - name: Checkout
-        uses: actions/checkout@v4
-
-      - name: Set up Haskell (GHC + Cabal)
-        uses: haskell-actions/setup@v2
-        with:
-          ghc-version: "9.14.1"
-          cabal-version: "3.16.1.0"
-
-      - name: Cache Cabal
-        uses: actions/cache@v4
-        with:
-          path: |
-            ~/.cabal/store
-            dist-newstyle
-          key: ${{ runner.os }}-cabal-${{ hashFiles('**/*.cabal', '**/cabal.project*') }}
-          restore-keys: |
-            ${{ runner.os }}-cabal-
-
-      - name: Install HLint
-        uses: haskell-actions/hlint-setup@v2
-        with:
-          version: ${{ env.HLINT_VERSION }}
-
-      - name: Lint
-        uses: haskell-actions/hlint-run@v2
-        with:
-          path: '["src/", "test"]'
-          fail-on: warning
-
-      - name: Build
-        run: make build
-
-      - name: Test
-        run: make test
+  publish-snapshot:
+    name: Publish snapshot binaries
+    needs: checks
+    if: github.event_name == 'push' && github.ref == 'refs/heads/main'
+    permissions:
+      contents: write
+    uses: ./.github/workflows/publish.yml
+    with:
+      ref: main
+      release_tag: latest-snapshot
+      release_title: latest-snapshot
+      prerelease: true
+      asset_prefix: sudoku-snapshot

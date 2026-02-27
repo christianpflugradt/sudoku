@@ -1,0 +1,63 @@
+name: Release
+
+on:
+  schedule:
+    - cron: "0 3 1 * *"
+  workflow_dispatch:
+
+permissions:
+  contents: write
+
+jobs:
+  checks:
+    uses: ./.github/workflows/checks.yml
+
+  release:
+    name: semantic-release
+    needs: checks
+    runs-on: ubuntu-latest
+    permissions:
+      contents: write
+    outputs:
+      tag: ${{ steps.semrel.outputs.tag }}
+
+    steps:
+      - uses: actions/checkout@v4
+        with:
+          fetch-depth: 0
+          fetch-tags: true
+
+      - name: Setup Node
+        uses: actions/setup-node@v4
+        with:
+          node-version: "24"
+
+      - name: Run semantic-release
+        id: semrel
+        env:
+          GITHUB_TOKEN: ${{ secrets.GITHUB_TOKEN }}
+        run: |
+          npx --yes \
+            -p semantic-release \
+            -p conventional-changelog-conventionalcommits \
+            -p @semantic-release/commit-analyzer \
+            -p @semantic-release/release-notes-generator \
+            -p @semantic-release/github \
+            semantic-release
+
+          TAG="$(git describe --tags --abbrev=0)"
+          echo "tag=$TAG" >> "$GITHUB_OUTPUT"
+
+  publish:
+    name: Publish release binaries
+    needs: release
+    if: needs.release.result == 'success'
+    permissions:
+      contents: write
+    uses: ./.github/workflows/publish.yml
+    with:
+      ref: ${{ needs.release.outputs.tag }}
+      release_tag: ${{ needs.release.outputs.tag }}
+      release_title: ${{ needs.release.outputs.tag }}
+      prerelease: false
+      asset_prefix: sudoku-${{ needs.release.outputs.tag }}
