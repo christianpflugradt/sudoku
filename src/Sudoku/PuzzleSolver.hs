@@ -1,4 +1,12 @@
-module Sudoku.PuzzleSolver (PuzzleError (..), SolveResult (..), solve) where
+module Sudoku.PuzzleSolver
+  ( PuzzleError (..),
+    SolveResult (..),
+    SolvingStrategy,
+    AfterStep (..),
+    solve,
+    solveWith,
+  )
+where
 
 ----------------------------------------------------------------------
 -- Imports
@@ -27,13 +35,16 @@ data SolveResult
 ----------------------------------------------------------------------
 
 solve :: Grid -> Either PuzzleError SolveResult
-solve grid =
+solve = solveWith solvingStrategies
+
+solveWith :: [SolvingStrategy] -> Grid -> Either PuzzleError SolveResult
+solveWith strategies grid =
   if isComplete grid
     then Right (Solved grid)
-    else case step solvingStrategies grid of
+    else case step strategies grid of
       Left err -> Left err
       Right Stuck -> Right (Unsolvable grid)
-      Right (Progress updated) -> solve updated
+      Right (Progress updated) -> solveWith strategies updated
 
 ----------------------------------------------------------------------
 -- Internal Helpers
