@@ -1,8 +1,5 @@
-module Sudoku.PuzzleSolver
-  ( PuzzleError (..),
-    SolveResult (..),
-    SolvingStrategy,
-    AfterStep (..),
+module Sudoku.Solver.PuzzleSolver
+  ( SolveResult (..),
     solve,
     solveWith,
   )
@@ -16,14 +13,16 @@ import Sudoku.Grid
   ( Grid,
     isComplete,
   )
+import Sudoku.Solver.Strategy
+  ( AfterStep (..),
+    PuzzleError (..),
+    Strategy,
+    strategies,
+  )
 
 ----------------------------------------------------------------------
 -- Public Types
 ----------------------------------------------------------------------
-
-data PuzzleError
-  = Contradiction
-  deriving (Eq, Show)
 
 data SolveResult
   = Solved Grid
@@ -35,35 +34,23 @@ data SolveResult
 ----------------------------------------------------------------------
 
 solve :: Grid -> Either PuzzleError SolveResult
-solve = solveWith solvingStrategies
+solve = solveWith strategies
 
-solveWith :: [SolvingStrategy] -> Grid -> Either PuzzleError SolveResult
-solveWith strategies grid =
+solveWith :: [Strategy] -> Grid -> Either PuzzleError SolveResult
+solveWith strats grid =
   if isComplete grid
     then Right (Solved grid)
-    else case step strategies grid of
+    else case step strats grid of
       Left err -> Left err
       Right Stuck -> Right (Unsolvable grid)
-      Right (Progress updated) -> solveWith strategies updated
+      Right (Progress updated) -> solveWith strats updated
 
 ----------------------------------------------------------------------
 -- Internal Helpers
 ----------------------------------------------------------------------
 
-type SolvingStrategy = Grid -> Either PuzzleError AfterStep
-
-data AfterStep
-  = Progress Grid
-  | Stuck
-
-solvingStrategies :: [SolvingStrategy]
-solvingStrategies = [alwaysStuckStrategy]
-
-alwaysStuckStrategy :: SolvingStrategy
-alwaysStuckStrategy _ = Right Stuck
-
-step :: [SolvingStrategy] -> Grid -> Either PuzzleError AfterStep
-step strategies grid = go strategies
+step :: [Strategy] -> Grid -> Either PuzzleError AfterStep
+step strats grid = go strats
   where
     go [] = Right Stuck
     go (strategy : remaining) =

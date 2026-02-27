@@ -9,7 +9,7 @@ import qualified Sudoku.GridSpec as GridSpec
 import qualified Sudoku.Integration.ValidPuzzlesSpec as ValidPuzzlesSpec
 import qualified Sudoku.PuzzleBuilderSpec as PuzzleBuilderSpec
 import qualified Sudoku.PuzzleParserSpec as PuzzleParserSpec
-import qualified Sudoku.PuzzleSolverSpec as PuzzleSolverSpec
+import qualified Sudoku.Solver.PuzzleSolverSpec as PuzzleSolverSpec
 import qualified Sudoku.SymbolsSpec as SymbolsSpec
 import Test.Tasty (defaultMain, testGroup)
 

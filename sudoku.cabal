@@ -29,7 +29,8 @@ library
         Sudoku.Placements
         Sudoku.PuzzleBuilder
         Sudoku.PuzzleParser
-        Sudoku.PuzzleSolver
+        Sudoku.Solver.PuzzleSolver
+        Sudoku.Solver.Strategy
         Sudoku.Symbols
     build-depends:
         base ^>=4.22.0.0,
@@ -77,6 +78,7 @@ test-suite sudoku-tests
         Sudoku.GridSpec,
         Sudoku.PuzzleBuilderSpec,
         Sudoku.PuzzleParserSpec,
+        Sudoku.Solver.PuzzleSolverSpec,
         Sudoku.SymbolsSpec,
         Sudoku.Integration.ValidPuzzlesSpec,
         Sudoku.TestHelpers

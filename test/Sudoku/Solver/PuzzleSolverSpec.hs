@@ -1,4 +1,4 @@
-module Sudoku.PuzzleSolverSpec (tests) where
+module Sudoku.Solver.PuzzleSolverSpec (tests) where
 
 ----------------------------------------------------------------------
 -- Imports
@@ -6,12 +6,14 @@ module Sudoku.PuzzleSolverSpec (tests) where
 
 import Sudoku.Grid (Grid)
 import Sudoku.PuzzleBuilder (buildPuzzle)
-import Sudoku.PuzzleSolver
+import Sudoku.Solver.PuzzleSolver
+  ( SolveResult (..),
+    solveWith,
+  )
+import Sudoku.Solver.Strategy
   ( AfterStep (..),
     PuzzleError (..),
-    SolveResult (..),
-    SolvingStrategy,
-    solveWith,
+    Strategy,
   )
 import Sudoku.TestHelpers
   ( requireEmptyGrid,
@@ -115,11 +117,11 @@ testSolveWithContradiction =
 -- Test strategies
 ----------------------------------------------------------------------
 
-stuckStrategy :: SolvingStrategy
+stuckStrategy :: Strategy
 stuckStrategy _ = Right Stuck
 
-progressTo :: Grid -> SolvingStrategy
+progressTo :: Grid -> Strategy
 progressTo solvedGrid _ = Right (Progress solvedGrid)
 
-contradictionStrategy :: SolvingStrategy
+contradictionStrategy :: Strategy
 contradictionStrategy _ = Left Contradiction
