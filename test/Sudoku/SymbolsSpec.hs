@@ -12,7 +12,11 @@ import Sudoku.TestHelpers
   ( requireSymbols,
   )
 import Test.Tasty (TestTree, testGroup)
-import Test.Tasty.HUnit (assertEqual, assertFailure, testCase)
+import Test.Tasty.HUnit
+  ( assertEqual,
+    assertFailure,
+    testCase,
+  )
 
 ----------------------------------------------------------------------
 -- Test suite

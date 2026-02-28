@@ -1,10 +1,20 @@
-module Sudoku.PuzzleParser (ParseError (..), parsePuzzle) where
+module Sudoku.PuzzleParser
+  ( ParseError (..),
+    parsePuzzle,
+  )
+where
 
 ----------------------------------------------------------------------
 -- Imports
 ----------------------------------------------------------------------
 
-import Data.Char (isAsciiLower, isAsciiUpper, isDigit, isSpace, toLower)
+import Data.Char
+  ( isAsciiLower,
+    isAsciiUpper,
+    isDigit,
+    isSpace,
+    toLower,
+  )
 import Data.Maybe (catMaybes)
 import qualified Data.Set as S
 import Sudoku.Placements

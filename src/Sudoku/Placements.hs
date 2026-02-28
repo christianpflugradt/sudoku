@@ -1,4 +1,8 @@
-module Sudoku.Placements (PlacementError (..), Placements) where
+module Sudoku.Placements
+  ( PlacementError (..),
+    Placements,
+  )
+where
 
 ----------------------------------------------------------------------
 -- Imports

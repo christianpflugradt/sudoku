@@ -5,7 +5,9 @@ module Sudoku.GridSpec (tests) where
 ----------------------------------------------------------------------
 
 import qualified Data.Set as S
-import Sudoku.Geometry (SideLength (..))
+import Sudoku.Geometry
+  ( SideLength (..),
+  )
 import qualified Sudoku.Geometry as G
 import Sudoku.Grid
   ( Cell (..),
@@ -16,7 +18,9 @@ import Sudoku.Grid
     setCell,
     sideLength,
   )
-import Sudoku.Placements (PlacementError (..))
+import Sudoku.Placements
+  ( PlacementError (..),
+  )
 import Sudoku.Symbols (symbolsList)
 import Sudoku.TestHelpers
   ( requireEmptyGrid,

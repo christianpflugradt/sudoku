@@ -8,8 +8,12 @@ import Sudoku.Grid
   ( Grid,
     setCell,
   )
-import Sudoku.Solver.NakedSingleStrategy (nakedSingleStrategy)
-import Sudoku.Solver.Strategy (AfterStep (..))
+import Sudoku.Solver.NakedSingleStrategy
+  ( nakedSingleStrategy,
+  )
+import Sudoku.Solver.Strategy
+  ( AfterStep (..),
+  )
 import Sudoku.Symbols (Symbol)
 import Sudoku.TestHelpers
   ( requireEmptyGrid,
@@ -18,7 +22,11 @@ import Sudoku.TestHelpers
     requireSymbols,
   )
 import Test.Tasty (TestTree, testGroup)
-import Test.Tasty.HUnit (assertEqual, assertFailure, testCase)
+import Test.Tasty.HUnit
+  ( assertEqual,
+    assertFailure,
+    testCase,
+  )
 
 ----------------------------------------------------------------------
 -- Test suite

@@ -8,7 +8,9 @@ import Sudoku.Grid
   ( Cell (..),
     cellAt,
   )
-import Sudoku.Placements (PlacementError (..))
+import Sudoku.Placements
+  ( PlacementError (..),
+  )
 import Sudoku.PuzzleBuilder (buildPuzzle)
 import Sudoku.TestHelpers
   ( requireLeft,

@@ -1,18 +1,39 @@
-module Sudoku.App.Runner (AppError (..), runWithOptions) where
+module Sudoku.App.Runner
+  ( AppError (..),
+    runWithOptions,
+  )
+where
 
 import Control.Exception (IOException)
 import Control.Monad (void, when)
 import Data.Either (rights)
 import Data.List (sort)
-import Data.Time.Clock (NominalDiffTime, diffUTCTime, getCurrentTime)
-import Sudoku.App.Options (Mode (..), Options (..), PrintTarget (..), RenderFormat (..))
+import Data.Time.Clock
+  ( NominalDiffTime,
+    diffUTCTime,
+    getCurrentTime,
+  )
+import Sudoku.App.Options
+  ( Mode (..),
+    Options (..),
+    PrintTarget (..),
+    RenderFormat (..),
+  )
 import Sudoku.App.Render (renderGrid, renderGridCompact)
-import Sudoku.Grid (Cell (..), Grid, allCoordinates, cellAt)
+import Sudoku.Grid
+  ( Cell (..),
+    Grid,
+    allCoordinates,
+    cellAt,
+  )
 import Sudoku.IO.File (readFileSafe)
 import Sudoku.Placements (PlacementError)
 import Sudoku.PuzzleBuilder (buildPuzzle)
 import Sudoku.PuzzleParser (ParseError, parsePuzzle)
-import Sudoku.Solver.PuzzleSolver (SolveResult (..), solve)
+import Sudoku.Solver.PuzzleSolver
+  ( SolveResult (..),
+    solve,
+  )
 import Sudoku.Solver.Strategy (PuzzleError)
 import Sudoku.Symbols (Symbols, symbolChar, symbolsList)
 import System.Directory (doesDirectoryExist, listDirectory)

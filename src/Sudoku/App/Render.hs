@@ -1,7 +1,17 @@
-module Sudoku.App.Render (renderGrid, renderGridCompact) where
+module Sudoku.App.Render
+  ( renderGrid,
+    renderGridCompact,
+  )
+where
 
 import Data.List (intercalate)
-import Sudoku.Grid (Cell (..), Grid, boundsOf, cellAt, sideLength)
+import Sudoku.Grid
+  ( Cell (..),
+    Grid,
+    boundsOf,
+    cellAt,
+    sideLength,
+  )
 import Sudoku.Symbols (symbolChar)
 
 renderGrid :: Grid -> String

@@ -31,7 +31,10 @@ import Sudoku.Geometry
     Unit,
   )
 import qualified Sudoku.Geometry as G
-import Sudoku.Placements (PlacementError (..), Placements)
+import Sudoku.Placements
+  ( PlacementError (..),
+    Placements,
+  )
 import Sudoku.Symbols
   ( Symbol,
     Symbols,
