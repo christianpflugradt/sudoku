@@ -8,9 +8,7 @@ import Sudoku.Grid
   ( Grid,
     setCell,
   )
-import Sudoku.Solver.NakedSingleStrategy
-  ( nakedSingleStrategy,
-  )
+import Sudoku.Solver.NakedSingleStrategy (nakedSingleStrategy)
 import Sudoku.Solver.Strategy
   ( AfterStep (..),
   )

@@ -13,12 +13,8 @@ import Sudoku.Grid
   ( Grid,
     isComplete,
   )
-import Sudoku.Solver.HiddenSingleStrategy
-  ( hiddenSingleStrategy,
-  )
-import Sudoku.Solver.NakedSingleStrategy
-  ( nakedSingleStrategy,
-  )
+import Sudoku.Solver.HiddenSingleStrategy (hiddenSingleStrategy)
+import Sudoku.Solver.NakedSingleStrategy (nakedSingleStrategy)
 import Sudoku.Solver.Strategy
   ( AfterStep (..),
     PuzzleError (..),

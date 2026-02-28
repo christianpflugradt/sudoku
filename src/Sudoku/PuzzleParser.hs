@@ -17,9 +17,7 @@ import Data.Char
   )
 import Data.Maybe (catMaybes, listToMaybe)
 import qualified Data.Set as S
-import Sudoku.Placements
-  ( Placements,
-  )
+import Sudoku.Placements (Placements)
 import Sudoku.Symbols
   ( Symbols,
     mkSymbol,

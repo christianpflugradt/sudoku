@@ -8,9 +8,7 @@ import Sudoku.Symbols
   ( mkSymbol,
     mkSymbols,
   )
-import Sudoku.TestHelpers
-  ( requireSymbols,
-  )
+import Sudoku.TestHelpers (requireSymbols)
 import Test.Tasty (TestTree, testGroup)
 import Test.Tasty.HUnit
   ( assertEqual,
