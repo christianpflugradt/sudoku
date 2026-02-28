@@ -29,6 +29,7 @@ library
         Sudoku.Placements
         Sudoku.PuzzleBuilder
         Sudoku.PuzzleParser
+        Sudoku.Solver.HiddenSingleStrategy
         Sudoku.Solver.NakedSingleStrategy
         Sudoku.Solver.PuzzleSolver
         Sudoku.Solver.Strategy
@@ -79,6 +80,7 @@ test-suite sudoku-tests
         Sudoku.GridSpec,
         Sudoku.PuzzleBuilderSpec,
         Sudoku.PuzzleParserSpec,
+        Sudoku.Solver.HiddenSingleStrategySpec,
         Sudoku.Solver.NakedSingleStrategySpec,
         Sudoku.Solver.PuzzleSolverSpec,
         Sudoku.SymbolsSpec,

@@ -7,6 +7,7 @@ module Sudoku.Grid
     Placements,
     Unit,
     allCoordinates,
+    allowedSymbols,
     boundsOf,
     cellAt,
     emptyGrid,
@@ -73,8 +74,11 @@ emptyGrid symbols
     value = Empty (allCandidates symbols)
     keys = [(x, y) | x <- [0 .. upper], y <- [0 .. upper]]
 
+allowedSymbols :: Grid -> [Symbol]
+allowedSymbols = symbolsList . allowed
+
 sideLength :: Grid -> Int
-sideLength grid = length (symbolsList (allowed grid))
+sideLength = length . symbolsList . allowed
 
 boundsOf :: Grid -> (Coordinate, Coordinate)
 boundsOf grid = ((0, 0), (upper, upper))
@@ -104,8 +108,7 @@ setCell grid coord symbol = do
   foldM (removeCandidateFromPeer symbol) updatedGrid peers
 
 isComplete :: Grid -> Bool
-isComplete grid =
-  all (isFixed . requireCellAt grid) (allCoordinates grid)
+isComplete grid = all (isFixed . requireCellAt grid) (allCoordinates grid)
   where
     isFixed (Fixed _) = True
     isFixed (Empty _) = False
