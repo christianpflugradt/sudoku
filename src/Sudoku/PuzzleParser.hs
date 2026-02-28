@@ -15,7 +15,7 @@ import Data.Char
     isSpace,
     toLower,
   )
-import Data.Maybe (catMaybes)
+import Data.Maybe (catMaybes, listToMaybe)
 import qualified Data.Set as S
 import Sudoku.Placements
   ( Placements,
@@ -91,7 +91,7 @@ parseHeaderLine line =
   case break (== ':') line of
     (key, ':' : ' ' : value)
       | null key -> Left InvalidHeader
-      | head key == '-' -> Left InvalidHeader
+      | listToMaybe key == Just '-' -> Left InvalidHeader
       | not (all isHeaderKeyChar key) -> Left InvalidHeader
       | null value -> Left InvalidHeader
       | otherwise -> Right (map toLower key, value)
