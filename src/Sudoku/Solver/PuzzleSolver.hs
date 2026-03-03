@@ -44,7 +44,10 @@ solveWith strats grid =
     else case step strats grid of
       Left err -> Left err
       Right Stuck -> Right (Unsolvable grid)
-      Right (Progress updated) -> solveWith strats updated
+      Right (Progress updated) ->
+        if updated == grid
+          then Right (Unsolvable grid)
+          else solveWith strats updated
 
 ----------------------------------------------------------------------
 -- Internal Helpers

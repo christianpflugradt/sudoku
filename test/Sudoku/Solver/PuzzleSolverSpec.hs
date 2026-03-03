@@ -36,6 +36,7 @@ tests =
     [ testSolveWithCompleteGrid,
       testSolveWithStuckStrategy,
       testSolveWithProgressStrategy,
+      testSolveWithNoopProgressStrategy,
       testSolveWithContradiction
     ]
 
@@ -96,6 +97,23 @@ testSolveWithProgressStrategy =
     -- then
     assertEqual "result" expected actual
 
+testSolveWithNoopProgressStrategy :: TestTree
+testSolveWithNoopProgressStrategy =
+  testCase "solveWith returns Unsolvable when strategy reports Progress without grid changes" $ do
+    -- given
+    let allowedChars = ['1']
+    symbols <- requireSymbols "mkSymbols failed for ['1']" allowedChars
+    grid <- requireEmptyGrid "emptyGrid returned Nothing for 1x1 symbols" symbols
+
+    let strategies = [progressNoopStrategy]
+    let expected = Unsolvable grid
+
+    -- when
+    actual <- requireRight "expected Right Unsolvable" (solveWith strategies grid)
+
+    -- then
+    assertEqual "result" expected actual
+
 testSolveWithContradiction :: TestTree
 testSolveWithContradiction =
   testCase "solveWith returns Left Contradiction when a strategy fails" $ do
@@ -122,6 +140,9 @@ stuckStrategy _ = Right Stuck
 
 progressTo :: Grid -> Strategy
 progressTo solvedGrid _ = Right (Progress solvedGrid)
+
+progressNoopStrategy :: Strategy
+progressNoopStrategy grid = Right (Progress grid)
 
 contradictionStrategy :: Strategy
 contradictionStrategy _ = Left Contradiction

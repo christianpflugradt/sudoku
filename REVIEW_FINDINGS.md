@@ -13,14 +13,6 @@ Open findings should stay concise and implementation-oriented; resolved findings
 
 ## Open Findings
 
-### RF-008
-
-- `Severity`: `P1`
-- `Location`: `src/Sudoku/Solver/PuzzleSolver.hs:47`
-- `Summary`: `solveWith` assumes every `Progress` result strictly advances state; if a strategy returns `Progress` with an unchanged grid, recursion can become non-terminating.
-- `Why It Matters`: strategy implementations are pluggable via `solveWith`, so a buggy/custom strategy can cause infinite loops at runtime.
-- `Suggested Change`: guard recursion with a progress check (`updated /= grid`), treat no-op progress as `Stuck` or `Contradiction`, or add a bounded-iteration safety mechanism.
-
 ### RF-009
 
 - `Severity`: `P3`
