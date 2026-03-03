@@ -13,14 +13,6 @@ Open findings should stay concise and implementation-oriented; resolved findings
 
 ## Open Findings
 
-### RF-005
-
-- `Severity`: `P2`
-- `Location`: `src/Sudoku/PuzzleBuilder.hs:29`
-- `Summary`: `buildPuzzle` uses `error` when `emptyGrid` returns `Nothing`.
-- `Why It Matters`: this introduces a partial runtime failure path in public API code and relies on a cross-module invariant being permanently true.
-- `Suggested Change`: make failure explicit in the type (e.g., return `Either BuildError Grid` with a constructor for invalid symbol count/shape), or constrain `Symbols` so invalid sizes are unrepresentable before `buildPuzzle`.
-
 ### RF-007
 
 - `Severity`: `P3`

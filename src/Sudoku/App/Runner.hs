@@ -27,8 +27,7 @@ import Sudoku.Grid
     cellAt,
   )
 import Sudoku.IO.File (readFileSafe)
-import Sudoku.Placements (PlacementError)
-import Sudoku.PuzzleBuilder (buildPuzzle)
+import Sudoku.PuzzleBuilder (BuildError, buildPuzzle)
 import Sudoku.PuzzleParser (ParseError, parsePuzzle)
 import Sudoku.Solver.PuzzleSolver
   ( SolveResult (..),
@@ -42,7 +41,7 @@ import System.FilePath (takeExtension, (</>))
 data AppError
   = FileError IOException
   | ParseError ParseError
-  | BuildError PlacementError
+  | BuildPuzzleError BuildError
   | SolveError PuzzleError
   deriving (Show)
 

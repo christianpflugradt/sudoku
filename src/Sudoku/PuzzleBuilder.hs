@@ -1,4 +1,8 @@
-module Sudoku.PuzzleBuilder (buildPuzzle) where
+module Sudoku.PuzzleBuilder
+  ( BuildError (..),
+    buildPuzzle,
+  )
+where
 
 ----------------------------------------------------------------------
 -- Imports
@@ -24,11 +28,19 @@ import Sudoku.Symbols
 -- Public API
 ----------------------------------------------------------------------
 
-buildPuzzle :: Symbols -> Placements -> Either PlacementError Grid
+data BuildError
+  = InvalidGridShape
+  | PlacementFailure PlacementError
+  deriving (Eq, Show)
+
+buildPuzzle :: Symbols -> Placements -> Either BuildError Grid
 buildPuzzle symbols placements =
   case emptyGrid symbols of
-    Nothing -> error "unreachable: emptyGrid must succeed"
+    Nothing -> Left InvalidGridShape
     Just grid -> foldM step grid placements
   where
-    step :: Grid -> (Coordinate, Symbol) -> Either PlacementError Grid
-    step grid (coord, symbol) = setCell grid coord symbol
+    step :: Grid -> (Coordinate, Symbol) -> Either BuildError Grid
+    step grid (coord, symbol) =
+      case setCell grid coord symbol of
+        Left err -> Left (PlacementFailure err)
+        Right updated -> Right updated

@@ -11,7 +11,10 @@ import Sudoku.Grid
 import Sudoku.Placements
   ( PlacementError (..),
   )
-import Sudoku.PuzzleBuilder (buildPuzzle)
+import Sudoku.PuzzleBuilder
+  ( BuildError (..),
+    buildPuzzle,
+  )
 import Sudoku.TestHelpers
   ( requireLeft,
     requireRight,
@@ -32,6 +35,7 @@ tests =
     [ testBuildPuzzleEmptyPlacements,
       testBuildPuzzleSinglePlacement,
       testBuildPuzzleMultiplePlacements,
+      testBuildPuzzleInvalidGridShape,
       testBuildPuzzlePropagatesOutOfBounds,
       testBuildPuzzlePropagatesAlreadySet,
       testBuildPuzzlePropagatesDuplicateInUnit,
@@ -94,6 +98,18 @@ testBuildPuzzleMultiplePlacements =
     assertEqual "cellAt (1,1)" (Just (Fixed sym2)) (cellAt grid (1, 1))
     assertEqual "cellAt (2,3)" (Just (Fixed sym3)) (cellAt grid (2, 3))
 
+testBuildPuzzleInvalidGridShape :: TestTree
+testBuildPuzzleInvalidGridShape =
+  testCase "buildPuzzle returns Left InvalidGridShape for unsupported symbol count" $ do
+    -- given
+    symbols <- requireSymbols "mkSymbols failed for ['1','2']" ['1', '2']
+
+    -- when
+    err <- requireLeft "expected Left InvalidGridShape" (buildPuzzle symbols [])
+
+    -- then
+    assertEqual "error" InvalidGridShape err
+
 testBuildPuzzlePropagatesOutOfBounds :: TestTree
 testBuildPuzzlePropagatesOutOfBounds =
   testCase "buildPuzzle returns Left OutOfBounds if a placement is out of bounds" $ do
@@ -111,7 +127,7 @@ testBuildPuzzlePropagatesOutOfBounds =
     err <- requireLeft "expected Left OutOfBounds" (buildPuzzle symbols placements)
 
     -- then
-    assertEqual "error" OutOfBounds err
+    assertEqual "error" (PlacementFailure OutOfBounds) err
 
 testBuildPuzzlePropagatesAlreadySet :: TestTree
 testBuildPuzzlePropagatesAlreadySet =
@@ -132,7 +148,7 @@ testBuildPuzzlePropagatesAlreadySet =
     err <- requireLeft "expected Left AlreadySet" (buildPuzzle symbols placements)
 
     -- then
-    assertEqual "error" AlreadySet err
+    assertEqual "error" (PlacementFailure AlreadySet) err
 
 testBuildPuzzlePropagatesDuplicateInUnit :: TestTree
 testBuildPuzzlePropagatesDuplicateInUnit =
@@ -151,7 +167,7 @@ testBuildPuzzlePropagatesDuplicateInUnit =
     err <- requireLeft "expected Left DuplicateInUnit" (buildPuzzle symbols placements)
 
     -- then
-    assertEqual "error" DuplicateInUnit err
+    assertEqual "error" (PlacementFailure DuplicateInUnit) err
 
 testBuildPuzzlePropagatesNoCandidates :: TestTree
 testBuildPuzzlePropagatesNoCandidates =
@@ -176,4 +192,4 @@ testBuildPuzzlePropagatesNoCandidates =
     err <- requireLeft "expected Left NoCandidates" (buildPuzzle symbols placements)
 
     -- then
-    assertEqual "error" NoCandidates err
+    assertEqual "error" (PlacementFailure NoCandidates) err
