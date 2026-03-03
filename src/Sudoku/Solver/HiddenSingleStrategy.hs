@@ -8,7 +8,6 @@ import Data.Maybe (listToMaybe, mapMaybe)
 import qualified Data.Set as S
 import Sudoku.Geometry
   ( Coordinate,
-    SideLength (..),
     Unit,
     allUnits,
   )
@@ -51,7 +50,7 @@ data CountResult = Exact Placement | Ambiguous Int
 findOnlyCell :: Grid -> Maybe Placement
 findOnlyCell grid =
   listToMaybe . mapMaybe (exactMatch . uncurry (countCandidateCells grid)) $
-    [(unit, symbol) | symbol <- allowedSymbols grid, unit <- allUnits (SideLength (sideLength grid))]
+    [(unit, symbol) | symbol <- allowedSymbols grid, unit <- allUnits (sideLength grid)]
 
 countCandidateCells :: Grid -> Unit -> Symbol -> CountResult
 countCandidateCells grid unit symbol = case coords of

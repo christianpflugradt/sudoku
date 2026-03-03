@@ -10,7 +10,7 @@ import Sudoku.Grid
     Grid,
     boundsOf,
     cellAt,
-    sideLength,
+    sideLengthInt,
   )
 import Sudoku.Symbols (symbolChar)
 
@@ -26,7 +26,7 @@ renderPretty :: Grid -> [String]
 renderPretty grid =
   concat (zipWith renderRowBlock [0 ..] rowBlocks)
   where
-    n = sideLength grid
+    n = sideLengthInt grid
     b = floor (sqrt (fromIntegral n :: Double))
     rowBlocks = chunk b [0 .. n - 1]
 

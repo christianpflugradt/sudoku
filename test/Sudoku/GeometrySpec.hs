@@ -8,13 +8,14 @@ import Data.List (sort)
 import qualified Data.Set as S
 import Sudoku.Geometry
   ( Coordinate,
-    SideLength (..),
+    SideLength,
     Unit,
     allUnits,
+    mkSideLength,
     peersOf,
   )
 import Test.Tasty (TestTree, testGroup)
-import Test.Tasty.HUnit (assertBool, assertEqual, testCase)
+import Test.Tasty.HUnit (assertBool, assertEqual, assertFailure, testCase)
 
 ----------------------------------------------------------------------
 -- Test suite
@@ -24,9 +25,49 @@ tests :: TestTree
 tests =
   testGroup
     "Sudoku.Geometry"
-    [ testAllUnits,
+    [ testMkSideLength,
+      testAllUnits,
       testPeersOf
     ]
+
+----------------------------------------------------------------------
+-- mkSideLength
+----------------------------------------------------------------------
+
+testMkSideLength :: TestTree
+testMkSideLength =
+  testGroup
+    "mkSideLength"
+    [ testMkSideLengthAcceptsPerfectSquares,
+      testMkSideLengthRejectsZero,
+      testMkSideLengthRejectsNegative,
+      testMkSideLengthRejectsNonSquare
+    ]
+
+testMkSideLengthAcceptsPerfectSquares :: TestTree
+testMkSideLengthAcceptsPerfectSquares =
+  testCase "accepts positive perfect squares" $ do
+    assertBool "1 should be valid" (mkSideLength 1 /= Nothing)
+    assertBool "4 should be valid" (mkSideLength 4 /= Nothing)
+    assertBool "9 should be valid" (mkSideLength 9 /= Nothing)
+    assertBool "16 should be valid" (mkSideLength 16 /= Nothing)
+
+testMkSideLengthRejectsZero :: TestTree
+testMkSideLengthRejectsZero =
+  testCase "rejects zero" $
+    assertEqual "mkSideLength 0" Nothing (mkSideLength 0)
+
+testMkSideLengthRejectsNegative :: TestTree
+testMkSideLengthRejectsNegative =
+  testCase "rejects negative values" $
+    assertEqual "mkSideLength (-4)" Nothing (mkSideLength (-4))
+
+testMkSideLengthRejectsNonSquare :: TestTree
+testMkSideLengthRejectsNonSquare =
+  testCase "rejects non-square values" $ do
+    assertEqual "mkSideLength 2" Nothing (mkSideLength 2)
+    assertEqual "mkSideLength 3" Nothing (mkSideLength 3)
+    assertEqual "mkSideLength 6" Nothing (mkSideLength 6)
 
 ----------------------------------------------------------------------
 -- allUnits
@@ -49,7 +90,7 @@ testAllUnits4x4Count :: TestTree
 testAllUnits4x4Count =
   testCase "allUnits 4x4 returns 12 units (4 rows + 4 cols + 4 boxes)" $ do
     -- given
-    let n = SideLength 4
+    n <- requireSideLength 4
 
     -- when
     let units = allUnits n
@@ -61,8 +102,8 @@ testAllUnits4x4ContainsRow :: TestTree
 testAllUnits4x4ContainsRow =
   testCase "allUnits 4x4 contains the expected row for y=2" $ do
     -- given
-    let n = SideLength 4
-        expected :: Unit
+    n <- requireSideLength 4
+    let expected :: Unit
         expected =
           [ (0, 2),
             (1, 2),
@@ -80,8 +121,8 @@ testAllUnits4x4ContainsCol :: TestTree
 testAllUnits4x4ContainsCol =
   testCase "allUnits 4x4 contains the expected column for x=1" $ do
     -- given
-    let n = SideLength 4
-        expected :: Unit
+    n <- requireSideLength 4
+    let expected :: Unit
         expected =
           [ (1, 0),
             (1, 1),
@@ -99,8 +140,8 @@ testAllUnits4x4ContainsBox :: TestTree
 testAllUnits4x4ContainsBox =
   testCase "allUnits 4x4 contains the top-left 2x2 box" $ do
     -- given
-    let n = SideLength 4
-        expected :: Unit
+    n <- requireSideLength 4
+    let expected :: Unit
         expected =
           [ (0, 0),
             (0, 1),
@@ -118,7 +159,7 @@ testAllUnits4x4NoDuplicates :: TestTree
 testAllUnits4x4NoDuplicates =
   testCase "allUnits 4x4 contains no duplicate units" $ do
     -- given
-    let n = SideLength 4
+    n <- requireSideLength 4
 
     -- when
     let units = canonicalUnits (allUnits n)
@@ -130,7 +171,7 @@ testAllUnits9x9Count :: TestTree
 testAllUnits9x9Count =
   testCase "allUnits 9x9 returns 27 units (9 rows + 9 cols + 9 boxes)" $ do
     -- given
-    let n = SideLength 9
+    n <- requireSideLength 9
 
     -- when
     let units = allUnits n
@@ -142,8 +183,8 @@ testAllUnits9x9ContainsCenterBox :: TestTree
 testAllUnits9x9ContainsCenterBox =
   testCase "allUnits 9x9 contains the center 3x3 box" $ do
     -- given
-    let n = SideLength 9
-        expected :: Unit
+    n <- requireSideLength 9
+    let expected :: Unit
         expected =
           [ (3, 3),
             (3, 4),
@@ -181,8 +222,8 @@ testPeersOf4x4MiddleExact :: TestTree
 testPeersOf4x4MiddleExact =
   testCase "peersOf 4x4 returns the correct peers for (1,2)" $ do
     -- given
-    let n = SideLength 4
-        coord :: Coordinate
+    n <- requireSideLength 4
+    let coord :: Coordinate
         coord = (1, 2)
         expected =
           S.fromList
@@ -206,8 +247,8 @@ testPeersOf4x4ExcludesSelf :: TestTree
 testPeersOf4x4ExcludesSelf =
   testCase "peersOf 4x4 does not include the coordinate itself" $ do
     -- given
-    let n = SideLength 4
-        coord = (0, 0)
+    n <- requireSideLength 4
+    let coord = (0, 0)
 
     -- when
     let peers = peersOf n coord
@@ -219,8 +260,8 @@ testPeersOf4x4NoDuplicates :: TestTree
 testPeersOf4x4NoDuplicates =
   testCase "peersOf 4x4 contains no duplicates" $ do
     -- given
-    let n = SideLength 4
-        coord = (3, 3)
+    n <- requireSideLength 4
+    let coord = (3, 3)
 
     -- when
     let peers = peersOf n coord
@@ -232,8 +273,8 @@ testPeersOf9x9CenterCount :: TestTree
 testPeersOf9x9CenterCount =
   testCase "peersOf 9x9 returns 20 peers for (4,4)" $ do
     -- given
-    let n = SideLength 9
-        coord = (4, 4)
+    n <- requireSideLength 9
+    let coord = (4, 4)
 
     -- when
     let peers = S.fromList (peersOf n coord)
@@ -245,8 +286,8 @@ testPeersOf9x9CenterContainsExamples :: TestTree
 testPeersOf9x9CenterContainsExamples =
   testCase "peersOf 9x9 for (4,4) includes expected row/col/box peers" $ do
     -- given
-    let n = SideLength 9
-        coord = (4, 4)
+    n <- requireSideLength 9
+    let coord = (4, 4)
         expectedSamples =
           [ (0, 4), -- same row
             (4, 0), -- same col
@@ -258,6 +299,12 @@ testPeersOf9x9CenterContainsExamples =
     -- then
     mapM_ (\p -> assertBool ("missing peer: " ++ show p) (p `S.member` peers)) expectedSamples
     assertBool "self unexpectedly included" (coord `S.notMember` peers)
+
+requireSideLength :: Int -> IO SideLength
+requireSideLength n =
+  case mkSideLength n of
+    Just side -> pure side
+    Nothing -> assertFailure ("expected valid SideLength, got " ++ show n) >> error "unreachable"
 
 ----------------------------------------------------------------------
 -- Helpers

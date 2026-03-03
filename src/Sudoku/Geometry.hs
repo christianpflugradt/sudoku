@@ -1,7 +1,9 @@
 module Sudoku.Geometry
   ( Coordinate,
-    SideLength (..),
+    SideLength,
     Unit,
+    mkSideLength,
+    unSideLength,
     allUnits,
     peersOf,
   )
@@ -22,9 +24,21 @@ newtype SideLength = SideLength Int
 -- Public API
 ----------------------------------------------------------------------
 
-allUnits :: SideLength -> [Unit]
-allUnits n@(SideLength side) = rows ++ cols ++ boxes
+mkSideLength :: Int -> Maybe SideLength
+mkSideLength side
+  | side <= 0 = Nothing
+  | b * b == side = Just (SideLength side)
+  | otherwise = Nothing
   where
+    b = isqrt side
+
+unSideLength :: SideLength -> Int
+unSideLength (SideLength side) = side
+
+allUnits :: SideLength -> [Unit]
+allUnits n = rows ++ cols ++ boxes
+  where
+    side = unSideLength n
     rows = [rowOf n (0, y) | y <- [0 .. side - 1]]
     cols = [colOf n (x, 0) | x <- [0 .. side - 1]]
     boxes = [boxOf n (x, y) | x <- [0, boxLength n .. side - 1], y <- [0, boxLength n .. side - 1]]
@@ -41,19 +55,27 @@ peersOf n (x, y) = filter (/= (x, y)) $ row ++ col ++ filter (\(bx, by) -> bx /=
 ----------------------------------------------------------------------
 
 boxLength :: SideLength -> Int
-boxLength (SideLength side) = let b = floor (sqrt (fromIntegral side :: Double)) in b
+boxLength = isqrt . unSideLength
 
 rowOf :: SideLength -> Coordinate -> Unit
-rowOf (SideLength side) (_, y) = [(x, y) | x <- [0 .. side - 1]]
+rowOf n (_, y) = [(x, y) | x <- [0 .. side - 1]]
+  where
+    side = unSideLength n
 
 colOf :: SideLength -> Coordinate -> Unit
-colOf (SideLength side) (x, _) = [(x, y) | y <- [0 .. side - 1]]
+colOf n (x, _) = [(x, y) | y <- [0 .. side - 1]]
+  where
+    side = unSideLength n
 
 boxOf :: SideLength -> Coordinate -> Unit
-boxOf n@(SideLength side) (x, y) = [(bx, by) | bx <- [fromX .. toX], by <- [fromY .. toY]]
+boxOf n (x, y) = [(bx, by) | bx <- [fromX .. toX], by <- [fromY .. toY]]
   where
+    side = unSideLength n
     b = boxLength n
     fromX = (x `div` b) * b
     fromY = (y `div` b) * b
     toX = min (side - 1) (fromX + b - 1)
     toY = min (side - 1) (fromY + b - 1)
+
+isqrt :: Int -> Int
+isqrt x = floor (sqrt (fromIntegral x :: Double))

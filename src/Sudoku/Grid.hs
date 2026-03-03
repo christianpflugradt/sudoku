@@ -5,6 +5,7 @@ module Sudoku.Grid
     Grid,
     PlacementError,
     Placements,
+    SideLength,
     Unit,
     allCoordinates,
     allowedSymbols,
@@ -14,6 +15,7 @@ module Sudoku.Grid
     isComplete,
     setCell,
     sideLength,
+    sideLengthInt,
   )
 where
 
@@ -27,8 +29,10 @@ import qualified Data.Array as A
 import qualified Data.Set as S
 import Sudoku.Geometry
   ( Coordinate,
-    SideLength (..),
+    SideLength,
     Unit,
+    mkSideLength,
+    unSideLength,
   )
 import qualified Sudoku.Geometry as G
 import Sudoku.Placements
@@ -52,6 +56,7 @@ data Cell = Fixed Symbol | Empty Candidates
 
 data Grid = Grid
   { allowed :: Symbols,
+    side :: SideLength,
     cells :: Array Coordinate Cell
   }
   deriving (Eq, Show)
@@ -61,18 +66,18 @@ data Grid = Grid
 ----------------------------------------------------------------------
 
 emptyGrid :: Symbols -> Maybe Grid
-emptyGrid symbols
-  | perfectSquare =
+emptyGrid symbols =
+  case mkSideLength n of
+    Nothing -> Nothing
+    Just side' ->
       Just
         Grid
           { allowed = symbols,
+            side = side',
             cells = A.array ((0, 0), (upper, upper)) [(k, value) | k <- keys]
           }
-  | otherwise = Nothing
   where
     n = length (symbolsList symbols)
-    b = floor (sqrt (fromIntegral n :: Double))
-    perfectSquare = b * b == n
     upper = n - 1
     value = Empty (allCandidates symbols)
     keys = [(x, y) | x <- [0 .. upper], y <- [0 .. upper]]
@@ -80,18 +85,21 @@ emptyGrid symbols
 allowedSymbols :: Grid -> [Symbol]
 allowedSymbols = symbolsList . allowed
 
-sideLength :: Grid -> Int
-sideLength = length . symbolsList . allowed
+sideLength :: Grid -> SideLength
+sideLength = side
+
+sideLengthInt :: Grid -> Int
+sideLengthInt = unSideLength . sideLength
 
 boundsOf :: Grid -> (Coordinate, Coordinate)
 boundsOf grid = ((0, 0), (upper, upper))
   where
-    upper = sideLength grid - 1
+    upper = sideLengthInt grid - 1
 
 allCoordinates :: Grid -> [Coordinate]
 allCoordinates grid = [(x, y) | x <- [0 .. upper], y <- [0 .. upper]]
   where
-    upper = sideLength grid - 1
+    upper = sideLengthInt grid - 1
 
 cellAt :: Grid -> Coordinate -> Maybe Cell
 cellAt grid coord
@@ -104,7 +112,7 @@ setCell grid coord symbol = do
     Nothing -> Left OutOfBounds
     Just (Fixed _) -> Left AlreadySet
     Just (Empty _) -> Right ()
-  let peers = G.peersOf (SideLength (sideLength grid)) coord
+  let peers = G.peersOf (sideLength grid) coord
   when (any (\c -> cellAt grid c == Just (Fixed symbol)) peers) $
     Left DuplicateInUnit
   let updatedGrid = setCellValue grid coord (Fixed symbol)

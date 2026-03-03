@@ -6,7 +6,7 @@ module Sudoku.GridSpec (tests) where
 
 import qualified Data.Set as S
 import Sudoku.Geometry
-  ( SideLength (..),
+  ( mkSideLength,
   )
 import qualified Sudoku.Geometry as G
 import Sudoku.Grid
@@ -262,8 +262,8 @@ testSideLength4x4 =
   testCase "sideLength is 4 for ['1'..'4']" $ do
     -- given
     let allowedChars = ['1' .. '4']
-        expected = 4
     allowed <- requireSymbols "mkSymbols failed for ['1'..'4']" allowedChars
+    expected <- requireSideLength "mkSideLength failed for 4" 4
 
     -- when
     grid <- requireEmptyGrid "emptyGrid returned Nothing for 4x4 symbols" allowed
@@ -277,8 +277,8 @@ testSideLength9x9 =
   testCase "sideLength is 9 for ['1'..'9']" $ do
     -- given
     let allowedChars = ['1' .. '9']
-        expected = 9
     allowed <- requireSymbols "mkSymbols failed for ['1'..'9']" allowedChars
+    expected <- requireSideLength "mkSideLength failed for 9" 9
 
     -- when
     grid <- requireEmptyGrid "emptyGrid returned Nothing for 9x9 symbols" allowed
@@ -292,8 +292,8 @@ testSideLength16x16 =
   testCase "sideLength is 16 for 16x16 alphabet" $ do
     -- given
     let allowedChars = ['1' .. '9'] ++ ['A' .. 'G']
-        expected = 16
     allowed <- requireSymbols "mkSymbols failed for 16x16 alphabet" allowedChars
+    expected <- requireSideLength "mkSideLength failed for 16" 16
 
     -- when
     grid <- requireEmptyGrid "emptyGrid returned Nothing for 16x16 symbols" allowed
@@ -520,7 +520,7 @@ testSetCellRemovesCandidateFromPeers =
     grid <- requireEmptyGrid "emptyGrid returned Nothing for 4x4 symbols" allowed
     sym1 <- requireSymbol "mkSymbol failed for '1'" allowed '1'
 
-    let peers = G.peersOf (SideLength (sideLength grid)) coord
+    let peers = G.peersOf (sideLength grid) coord
 
     -- when
     grid' <- case setCell grid coord sym1 of
@@ -591,3 +591,9 @@ testSetCellNoCandidates =
 
     -- then
     assertEqual "setCell" (Left NoCandidates) actual
+
+requireSideLength :: String -> Int -> IO G.SideLength
+requireSideLength errMsg n =
+  case mkSideLength n of
+    Just side -> pure side
+    Nothing -> assertFailure errMsg >> error "unreachable"
