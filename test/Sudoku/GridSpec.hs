@@ -11,17 +11,20 @@ import Sudoku.Geometry
 import qualified Sudoku.Geometry as G
 import Sudoku.Grid
   ( Cell (..),
+    Coordinate,
+    Grid,
     allCoordinates,
     boundsOf,
     cellAt,
     emptyGrid,
+    isComplete,
     setCell,
     sideLength,
   )
 import Sudoku.Placements
   ( PlacementError (..),
   )
-import Sudoku.Symbols (symbolsList)
+import Sudoku.Symbols (Symbol, symbolsList)
 import Sudoku.TestHelpers
   ( requireEmptyGrid,
     requireSymbol,
@@ -47,6 +50,7 @@ tests =
       testSideLength,
       testCellAt,
       testAllCoordinates,
+      testIsComplete,
       testSetCell
     ]
 
@@ -423,6 +427,105 @@ testAllCoordinatesNoDuplicates4x4 =
     assertEqual "unique size" (length coords) (S.size unique)
 
 ----------------------------------------------------------------------
+-- isComplete
+----------------------------------------------------------------------
+
+testIsComplete :: TestTree
+testIsComplete =
+  testGroup
+    "isComplete"
+    [ testIsCompleteEmptyGridFalse,
+      testIsCompletePartialGridFalse,
+      testIsCompleteFullGridTrue
+    ]
+
+testIsCompleteEmptyGridFalse :: TestTree
+testIsCompleteEmptyGridFalse =
+  testCase "isComplete returns False for an empty grid" $ do
+    -- given
+    allowed <- requireSymbols "mkSymbols failed for ['1'..'4']" ['1' .. '4']
+    grid <- requireEmptyGrid "emptyGrid returned Nothing for 4x4 symbols" allowed
+
+    -- when
+    let actual = isComplete grid
+
+    -- then
+    assertEqual "isComplete" False actual
+
+testIsCompletePartialGridFalse :: TestTree
+testIsCompletePartialGridFalse =
+  testCase "isComplete returns False when exactly one cell is empty" $ do
+    -- given
+    allowed <- requireSymbols "mkSymbols failed for ['1'..'4']" ['1' .. '4']
+    grid0 <- requireEmptyGrid "emptyGrid returned Nothing for 4x4 symbols" allowed
+    sym1 <- requireSymbol "mkSymbol failed for '1'" allowed '1'
+    sym2 <- requireSymbol "mkSymbol failed for '2'" allowed '2'
+    sym3 <- requireSymbol "mkSymbol failed for '3'" allowed '3'
+    sym4 <- requireSymbol "mkSymbol failed for '4'" allowed '4'
+
+    grid1 <- placeOrFail grid0 (0, 0) sym1
+    grid2 <- placeOrFail grid1 (1, 0) sym2
+    grid3 <- placeOrFail grid2 (2, 0) sym3
+    grid4 <- placeOrFail grid3 (3, 0) sym4
+
+    grid5 <- placeOrFail grid4 (0, 1) sym3
+    grid6 <- placeOrFail grid5 (1, 1) sym4
+    grid7 <- placeOrFail grid6 (2, 1) sym1
+    grid8 <- placeOrFail grid7 (3, 1) sym2
+
+    grid9 <- placeOrFail grid8 (0, 2) sym2
+    grid10 <- placeOrFail grid9 (1, 2) sym1
+    grid11 <- placeOrFail grid10 (2, 2) sym4
+    grid12 <- placeOrFail grid11 (3, 2) sym3
+
+    grid13 <- placeOrFail grid12 (0, 3) sym4
+    grid14 <- placeOrFail grid13 (1, 3) sym3
+    grid15 <- placeOrFail grid14 (2, 3) sym2
+
+    -- when
+    let actual = isComplete grid15
+
+    -- then
+    assertEqual "isComplete" False actual
+
+testIsCompleteFullGridTrue :: TestTree
+testIsCompleteFullGridTrue =
+  testCase "isComplete returns True for a fully filled grid" $ do
+    -- given
+    allowed <- requireSymbols "mkSymbols failed for ['1'..'4']" ['1' .. '4']
+    grid0 <- requireEmptyGrid "emptyGrid returned Nothing for 4x4 symbols" allowed
+    sym1 <- requireSymbol "mkSymbol failed for '1'" allowed '1'
+    sym2 <- requireSymbol "mkSymbol failed for '2'" allowed '2'
+    sym3 <- requireSymbol "mkSymbol failed for '3'" allowed '3'
+    sym4 <- requireSymbol "mkSymbol failed for '4'" allowed '4'
+
+    grid1 <- placeOrFail grid0 (0, 0) sym1
+    grid2 <- placeOrFail grid1 (1, 0) sym2
+    grid3 <- placeOrFail grid2 (2, 0) sym3
+    grid4 <- placeOrFail grid3 (3, 0) sym4
+
+    grid5 <- placeOrFail grid4 (0, 1) sym3
+    grid6 <- placeOrFail grid5 (1, 1) sym4
+    grid7 <- placeOrFail grid6 (2, 1) sym1
+    grid8 <- placeOrFail grid7 (3, 1) sym2
+
+    grid9 <- placeOrFail grid8 (0, 2) sym2
+    grid10 <- placeOrFail grid9 (1, 2) sym1
+    grid11 <- placeOrFail grid10 (2, 2) sym4
+    grid12 <- placeOrFail grid11 (3, 2) sym3
+
+    grid13 <- placeOrFail grid12 (0, 3) sym4
+    grid14 <- placeOrFail grid13 (1, 3) sym3
+    grid15 <- placeOrFail grid14 (2, 3) sym2
+    grid16 <- placeOrFail grid15 (3, 3) sym1
+
+    -- when
+    let actual = isComplete grid16
+
+    -- then
+    assertEqual "isComplete" True actual
+
+----------------------------------------------------------------------
 -- setCell
 ----------------------------------------------------------------------
 
@@ -613,3 +716,9 @@ requireSideLength errMsg n =
   case mkSideLength n of
     Just side -> pure side
     Nothing -> assertFailure errMsg >> error "unreachable"
+
+placeOrFail :: Grid -> Coordinate -> Symbol -> IO Grid
+placeOrFail grid coord sym =
+  case setCell grid coord sym of
+    Left e -> assertFailure ("setup failed: " ++ show e) >> error "unreachable"
+    Right next -> pure next

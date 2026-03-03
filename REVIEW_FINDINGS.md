@@ -13,14 +13,6 @@ Open findings should stay concise and implementation-oriented; resolved findings
 
 ## Open Findings
 
-### RF-004
-
-- `Severity`: `P2`
-- `Location`: `src/Sudoku/Grid.hs:114`
-- `Summary`: `isComplete` uses an internal `error` via `requireCellAt` for a case that is expected to be unreachable.
-- `Why It Matters`: partial code paths increase maintenance risk; future refactors can accidentally make the "unreachable" path reachable and fail at runtime.
-- `Suggested Change`: implement completeness check directly over `cells` (e.g., `all isFixed (A.elems (cells grid))`) to remove the partial path entirely.
-
 ### RF-005
 
 - `Severity`: `P2`
