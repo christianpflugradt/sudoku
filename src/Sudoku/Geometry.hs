@@ -19,7 +19,10 @@ type Coordinate = (Int, Int)
 
 type Unit = [Coordinate]
 
-newtype SideLength = SideLength Int
+data SideLength = SideLength
+  { sideLen :: Int,
+    boxLen :: Int
+  }
   deriving (Eq, Ord, Show)
 
 ----------------------------------------------------------------------
@@ -29,11 +32,11 @@ newtype SideLength = SideLength Int
 mkSideLength :: Int -> Maybe SideLength
 mkSideLength side
   | side <= 0 = Nothing
-  | Just _ <- perfectSquareRoot side = Just (SideLength side)
+  | Just b <- perfectSquareRoot side = Just (SideLength side b)
   | otherwise = Nothing
 
 unSideLength :: SideLength -> Int
-unSideLength (SideLength side) = side
+unSideLength = sideLen
 
 allUnits :: SideLength -> [Unit]
 allUnits n = rows ++ cols ++ boxes
@@ -55,10 +58,7 @@ peersOf n (x, y) = filter (/= (x, y)) $ row ++ col ++ filter (\(bx, by) -> bx /=
 ----------------------------------------------------------------------
 
 boxLength :: SideLength -> Int
-boxLength n =
-  case perfectSquareRoot (unSideLength n) of
-    Just b -> b
-    Nothing -> error "unreachable: invalid SideLength invariant"
+boxLength = boxLen
 
 rowOf :: SideLength -> Coordinate -> Unit
 rowOf n (_, y) = [(x, y) | x <- [0 .. side - 1]]
