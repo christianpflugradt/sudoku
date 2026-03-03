@@ -432,6 +432,7 @@ testSetCell =
     "setCell"
     [ testSetCellOutOfBounds,
       testSetCellAlreadySet,
+      testSetCellInvalidSymbol,
       testSetCellDuplicateInUnitRow,
       testSetCellSetsFixed,
       testSetCellRemovesCandidateFromPeers,
@@ -473,6 +474,21 @@ testSetCellAlreadySet =
 
     -- then
     assertEqual "setCell" (Left AlreadySet) actual
+
+testSetCellInvalidSymbol :: TestTree
+testSetCellInvalidSymbol =
+  testCase "setCell returns Left InvalidSymbol for symbol outside allowed set" $ do
+    -- given
+    allowed4 <- requireSymbols "mkSymbols failed for ['1'..'4']" ['1' .. '4']
+    allowed9 <- requireSymbols "mkSymbols failed for ['1'..'9']" ['1' .. '9']
+    grid <- requireEmptyGrid "emptyGrid returned Nothing for 4x4 symbols" allowed4
+    invalidForGrid <- requireSymbol "mkSymbol failed for '9'" allowed9 '9'
+
+    -- when
+    let actual = setCell grid (0, 0) invalidForGrid
+
+    -- then
+    assertEqual "setCell" (Left InvalidSymbol) actual
 
 testSetCellDuplicateInUnitRow :: TestTree
 testSetCellDuplicateInUnitRow =

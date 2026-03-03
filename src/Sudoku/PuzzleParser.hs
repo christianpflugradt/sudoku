@@ -17,6 +17,7 @@ import Data.Char
   )
 import Data.Maybe (catMaybes, listToMaybe)
 import qualified Data.Set as S
+import Sudoku.Math.IntegerRoots (perfectSquareRoot)
 import Sudoku.Placements (Placements)
 import Sudoku.Symbols
   ( Symbols,
@@ -157,14 +158,15 @@ inferSymbolsFromPayload payload =
 validateGridAndGetSideLength :: String -> Either ParseError Int
 validateGridAndGetSideLength payload
   | len == 0 = Left MalformedGrid
-  | n * n /= len = Left MalformedGrid
-  | b * b /= n = Left UnsupportedGridShape
-  | otherwise = Right n
+  | otherwise =
+      case perfectSquareRoot len of
+        Nothing -> Left MalformedGrid
+        Just n ->
+          case perfectSquareRoot n of
+            Nothing -> Left UnsupportedGridShape
+            Just _ -> Right n
   where
     len = length payload
-    n = isqrt len
-    b = isqrt n
-    isqrt x = floor (sqrt (fromIntegral x :: Double))
 
 validateSymbolCountMatchesGrid :: Symbols -> Int -> Either ParseError ()
 validateSymbolCountMatchesGrid symbols sideLength

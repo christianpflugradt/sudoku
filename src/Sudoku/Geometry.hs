@@ -13,6 +13,8 @@ where
 -- Public Types
 ----------------------------------------------------------------------
 
+import Sudoku.Math.IntegerRoots (perfectSquareRoot)
+
 type Coordinate = (Int, Int)
 
 type Unit = [Coordinate]
@@ -27,10 +29,8 @@ newtype SideLength = SideLength Int
 mkSideLength :: Int -> Maybe SideLength
 mkSideLength side
   | side <= 0 = Nothing
-  | b * b == side = Just (SideLength side)
+  | Just _ <- perfectSquareRoot side = Just (SideLength side)
   | otherwise = Nothing
-  where
-    b = isqrt side
 
 unSideLength :: SideLength -> Int
 unSideLength (SideLength side) = side
@@ -55,7 +55,10 @@ peersOf n (x, y) = filter (/= (x, y)) $ row ++ col ++ filter (\(bx, by) -> bx /=
 ----------------------------------------------------------------------
 
 boxLength :: SideLength -> Int
-boxLength = isqrt . unSideLength
+boxLength n =
+  case perfectSquareRoot (unSideLength n) of
+    Just b -> b
+    Nothing -> error "unreachable: invalid SideLength invariant"
 
 rowOf :: SideLength -> Coordinate -> Unit
 rowOf n (_, y) = [(x, y) | x <- [0 .. side - 1]]
@@ -76,6 +79,3 @@ boxOf n (x, y) = [(bx, by) | bx <- [fromX .. toX], by <- [fromY .. toY]]
     fromY = (y `div` b) * b
     toX = min (side - 1) (fromX + b - 1)
     toY = min (side - 1) (fromY + b - 1)
-
-isqrt :: Int -> Int
-isqrt x = floor (sqrt (fromIntegral x :: Double))

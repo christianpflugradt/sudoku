@@ -26,6 +26,7 @@ library
         Sudoku.Geometry
         Sudoku.Grid
         Sudoku.IO.File
+        Sudoku.Math.IntegerRoots
         Sudoku.Placements
         Sudoku.PuzzleBuilder
         Sudoku.PuzzleParser
@@ -78,6 +79,7 @@ test-suite sudoku-tests
     other-modules:
         Sudoku.GeometrySpec,
         Sudoku.GridSpec,
+        Sudoku.Math.IntegerRootsSpec,
         Sudoku.PuzzleBuilderSpec,
         Sudoku.PuzzleParserSpec,
         Sudoku.Solver.HiddenSingleStrategySpec,

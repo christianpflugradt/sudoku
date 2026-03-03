@@ -13,30 +13,6 @@ Open findings should stay concise and implementation-oriented; resolved findings
 
 ## Open Findings
 
-### RF-001
-
-- `Severity`: `P1`
-- `Location`: `src/Sudoku/Geometry.hs:56`
-- `Summary`: `SideLength (..)` is exported, allowing invalid values that can trigger division by zero in `boxOf`.
-- `Why It Matters`: external code can construct `SideLength 0` (or negative), then `x \`div\` b` in `boxOf` can fail at runtime when `b == 0`.
-- `Suggested Change`: make invalid side lengths unrepresentable (hide constructor and add smart constructor), or add explicit validation/guards in public APIs using `SideLength`.
-
-### RF-002
-
-- `Severity`: `P2`
-- `Location`: `src/Sudoku/Geometry.hs:44`
-- `Summary`: `boxLength` uses floating-point `sqrt` and `floor` for integral geometry logic.
-- `Why It Matters`: this can silently accept non-perfect-square side lengths and introduces avoidable numeric fragility in core domain math.
-- `Suggested Change`: validate with integer arithmetic (`b*b == side`) and define explicit behavior for invalid side lengths (e.g., `Maybe`, `Either`, or a validated constructor).
-
-### RF-003
-
-- `Severity`: `P1`
-- `Location`: `src/Sudoku/Grid.hs:101`
-- `Summary`: `setCell` does not validate that the input `Symbol` belongs to the grid's allowed symbol set.
-- `Why It Matters`: callers can pass a `Symbol` created from a different `Symbols` set; this can introduce invalid fixed values into a grid and break solver/puzzle invariants.
-- `Suggested Change`: enforce membership before setting (`symbol \`elem\` allowedSymbols grid` or set-based check), and return an explicit error for disallowed symbols.
-
 ### RF-004
 
 - `Severity`: `P2`
@@ -52,14 +28,6 @@ Open findings should stay concise and implementation-oriented; resolved findings
 - `Summary`: `buildPuzzle` uses `error` when `emptyGrid` returns `Nothing`.
 - `Why It Matters`: this introduces a partial runtime failure path in public API code and relies on a cross-module invariant being permanently true.
 - `Suggested Change`: make failure explicit in the type (e.g., return `Either BuildError Grid` with a constructor for invalid symbol count/shape), or constrain `Symbols` so invalid sizes are unrepresentable before `buildPuzzle`.
-
-### RF-006
-
-- `Severity`: `P2`
-- `Location`: `src/Sudoku/PuzzleParser.hs:167`
-- `Summary`: `validateGridAndGetSideLength` computes integer roots via floating-point `sqrt` + `floor`.
-- `Why It Matters`: using floating-point for integral validation logic is fragile and can hide invalid cases behind rounding behavior.
-- `Suggested Change`: use integer-safe validation for square checks (e.g., derive integer `n` and verify `n*n == len`, then `b*b == n`) without relying on floating-point root calculations.
 
 ### RF-007
 

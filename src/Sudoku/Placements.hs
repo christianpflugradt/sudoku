@@ -20,6 +20,7 @@ type Placements = [(Coordinate, Symbol)]
 data PlacementError
   = OutOfBounds
   | AlreadySet
+  | InvalidSymbol
   | DuplicateInUnit
   | NoCandidates
   deriving (Eq, Show)

@@ -23,7 +23,7 @@ where
 -- Imports
 ----------------------------------------------------------------------
 
-import Control.Monad (foldM, when)
+import Control.Monad (foldM, unless, when)
 import Data.Array (Array, (!), (//))
 import qualified Data.Array as A
 import qualified Data.Set as S
@@ -112,6 +112,8 @@ setCell grid coord symbol = do
     Nothing -> Left OutOfBounds
     Just (Fixed _) -> Left AlreadySet
     Just (Empty _) -> Right ()
+  unless (symbol `elem` allowedSymbols grid) $
+    Left InvalidSymbol
   let peers = G.peersOf (sideLength grid) coord
   when (any (\c -> cellAt grid c == Just (Fixed symbol)) peers) $
     Left DuplicateInUnit

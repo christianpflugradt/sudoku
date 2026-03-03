@@ -5,6 +5,7 @@ module Sudoku.GeometrySpec (tests) where
 ----------------------------------------------------------------------
 
 import Data.List (sort)
+import Data.Maybe (isJust)
 import qualified Data.Set as S
 import Sudoku.Geometry
   ( Coordinate,
@@ -47,10 +48,10 @@ testMkSideLength =
 testMkSideLengthAcceptsPerfectSquares :: TestTree
 testMkSideLengthAcceptsPerfectSquares =
   testCase "accepts positive perfect squares" $ do
-    assertBool "1 should be valid" (mkSideLength 1 /= Nothing)
-    assertBool "4 should be valid" (mkSideLength 4 /= Nothing)
-    assertBool "9 should be valid" (mkSideLength 9 /= Nothing)
-    assertBool "16 should be valid" (mkSideLength 16 /= Nothing)
+    assertBool "1 should be valid" (isJust (mkSideLength 1))
+    assertBool "4 should be valid" (isJust (mkSideLength 4))
+    assertBool "9 should be valid" (isJust (mkSideLength 9))
+    assertBool "16 should be valid" (isJust (mkSideLength 16))
 
 testMkSideLengthRejectsZero :: TestTree
 testMkSideLengthRejectsZero =

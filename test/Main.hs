@@ -7,6 +7,7 @@ module Main (main) where
 import qualified Sudoku.GeometrySpec as GeometrySpec
 import qualified Sudoku.GridSpec as GridSpec
 import qualified Sudoku.Integration.ValidPuzzlesSpec as ValidPuzzlesSpec
+import qualified Sudoku.Math.IntegerRootsSpec as IntegerRootsSpec
 import qualified Sudoku.PuzzleBuilderSpec as PuzzleBuilderSpec
 import qualified Sudoku.PuzzleParserSpec as PuzzleParserSpec
 import qualified Sudoku.Solver.HiddenSingleStrategySpec as HiddenSingleStrategySpec
@@ -28,6 +29,7 @@ main =
         GridSpec.tests,
         HiddenSingleStrategySpec.tests,
         NakedSingleStrategySpec.tests,
+        IntegerRootsSpec.tests,
         PuzzleBuilderSpec.tests,
         PuzzleParserSpec.tests,
         PuzzleSolverSpec.tests,
