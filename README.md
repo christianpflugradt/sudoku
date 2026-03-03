@@ -46,6 +46,12 @@ make build
 make run
 ```
 
+Or run directly with an explicit puzzle path:
+
+``` sh
+cabal run sudoku -- puzzles/valid/9x9/classic-9x9-easy-08e3e97452047458.sdk
+```
+
 ### Tests
 
 ``` sh
@@ -103,8 +109,8 @@ The hooks are optional, but recommended.
 ### Install (once per clone)
 
 ``` sh
-chmod +x scripts/install-hooks.sh
-./scripts/install-hooks.sh
+chmod +x install-hooks.sh
+./install-hooks.sh
 ```
 
 ## Makefile
@@ -143,7 +149,7 @@ for all Haskell source files.
 Ormolu formats the entire file (including import ordering and layout),
 ensuring a uniform style across the codebase.
 
-### Install 
+### Install
 
 Using GHCup:
 
