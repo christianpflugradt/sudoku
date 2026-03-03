@@ -13,14 +13,6 @@ Open findings should stay concise and implementation-oriented; resolved findings
 
 ## Open Findings
 
-### RF-007
-
-- `Severity`: `P3`
-- `Location`: `src/Sudoku/Solver/HiddenSingleStrategy.hs:49`
-- `Summary`: `CountResult` carries `Ambiguous Int`, but the `Int` payload is never consumed.
-- `Why It Matters`: unused payloads add noise, can trigger warnings, and obscure the true domain intent (`exactly one` vs `not exactly one`).
-- `Suggested Change`: simplify to a boolean-style result (e.g., `Unique Placement | NotUnique`) or avoid the custom type and return `Maybe Placement` directly from `countCandidateCells`.
-
 ### RF-008
 
 - `Severity`: `P1`

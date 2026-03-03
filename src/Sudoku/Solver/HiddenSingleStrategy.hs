@@ -45,7 +45,7 @@ hiddenSingleStrategy grid =
 
 type Placement = (Coordinate, Symbol)
 
-data CountResult = Exact Placement | Ambiguous Int
+data CountResult = Exact Placement | NotUnique
 
 findOnlyCell :: Grid -> Maybe Placement
 findOnlyCell grid =
@@ -55,7 +55,7 @@ findOnlyCell grid =
 countCandidateCells :: Grid -> Unit -> Symbol -> CountResult
 countCandidateCells grid unit symbol = case coords of
   [coord] -> Exact (coord, symbol)
-  _ -> Ambiguous (length coords)
+  _ -> NotUnique
   where
     coords = [coord | coord <- unit, Just cell <- [cellAt grid coord], hasCandidate cell symbol]
 
