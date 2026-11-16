@@ -1,5 +1,13 @@
 # Sudoku
 
+> [!NOTE]
+> **This project is archived.** It was a learning project to get deeper into Haskell, and I stopped
+> working on it early: the generator was never implemented and the solver stayed at an early stage.
+> Since early 2026 I hardly write any code by hand anymore, because working with AI agents makes me
+> far more productive. That takes away the point of a project whose purpose was to learn by writing
+> code myself, and with it my motivation, so it stays unfinished. The code remains available for
+> reference. If this changes, I might unarchive it. Please don't confuse it with my active projects.
+
 A Sudoku solver and generator written in Haskell (work in progress, very
 early stage).
 
